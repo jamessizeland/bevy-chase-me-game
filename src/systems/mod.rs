@@ -11,10 +11,11 @@
 //! - accessing components of entities using queries (Query)
 //! - creating/destroying entities, components, and resources using Commands (Commands)
 //! - sending/receiving events using EventWriter/EventReader
-
+pub mod pig;
+pub mod player;
 use bevy::{input::ButtonInput, prelude::*, render::camera::ScalingMode};
 
-use crate::components::Player;
+use crate::{components, resources};
 
 /// This system runs once at the start of the app
 pub fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
@@ -32,33 +33,6 @@ pub fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
             texture,
             ..default()
         },
-        Player { speed: 100.0 },
+        components::Player { speed: 100.0 },
     ));
-}
-
-pub fn character_movement(
-    mut characters: Query<(&mut Transform, &Player)>,
-    input: Res<ButtonInput<KeyCode>>,
-    time: Res<Time>,
-) {
-    for (mut transform, player) in characters.iter_mut() {
-        let movement_amount = player.speed * time.delta_seconds();
-        let mut translation = Vec3::ZERO;
-        if input.pressed(KeyCode::KeyW) || input.pressed(KeyCode::ArrowUp) {
-            translation.y += movement_amount;
-        }
-        if input.pressed(KeyCode::KeyS) || input.pressed(KeyCode::ArrowDown) {
-            translation.y -= movement_amount;
-        }
-        if input.pressed(KeyCode::KeyA) || input.pressed(KeyCode::ArrowLeft) {
-            translation.x -= movement_amount;
-        }
-        if input.pressed(KeyCode::KeyD) || input.pressed(KeyCode::ArrowRight) {
-            translation.x += movement_amount;
-        }
-        if translation.x != 0.0 && translation.y != 0.0 {
-            translation /= f32::sqrt(2.0); // Normalize diagonal movement
-        }
-        transform.translation += translation;
-    }
 }

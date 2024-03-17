@@ -7,3 +7,9 @@ use bevy::prelude::*;
 
 #[derive(Resource)]
 pub struct Money(pub f32);
+
+impl Default for Money {
+    fn default() -> Self {
+        Money(100.0)
+    }
+}

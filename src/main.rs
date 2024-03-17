@@ -4,12 +4,14 @@ mod resources;
 mod systems;
 mod utils;
 use bevy::prelude::*;
-use plugins::app_plugins;
+use systems::{pig, player};
 
 fn main() {
     App::new()
-        .add_plugins(app_plugins())
+        .add_plugins(plugins::app_plugins())
+        .init_resource::<resources::Money>()
         .add_systems(Startup, systems::startup)
-        .add_systems(Update, systems::character_movement)
+        .add_systems(Update, (player::character_movement,))
+        .add_systems(Update, (pig::spawn_pig, pig::pig_lifetime))
         .run();
 }
