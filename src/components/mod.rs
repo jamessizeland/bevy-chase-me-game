@@ -11,4 +11,20 @@ pub struct Player {
 #[derive(Component)]
 pub struct Pig {
     pub lifetime: Timer,
+    pub is_moving: bool,
+    pub direction: Vec3,
+    pub stop_timer: Timer,
+    pub move_timer: Timer,
+}
+
+impl Default for Pig {
+    fn default() -> Self {
+        Self {
+            lifetime: Default::default(),
+            is_moving: Default::default(),
+            direction: Default::default(),
+            stop_timer: Default::default(),
+            move_timer: Default::default(),
+        }
+    }
 }

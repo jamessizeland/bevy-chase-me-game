@@ -1,7 +1,19 @@
-# bevy-tutorial
+# bevy roguelike farming tutorial
 
+Following <https://youtube.com/playlist?list=PLT_D88-MTFOMLnBeTJJn9LhDON_fvHi6u&si=uFUNjLSoTETidpH6>
 
-```bash
-sudo apt-get update
-sudo apt-get install libasound2-dev lld clang mingw-w64
+Requirements:
+
+```sh
+# install rust
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
+
+First compile of Bevy projects is slow, but after that it's fast.
+
+
+## Progress
+
+Pig Spawning and lifetimes
+
+![Pig Spawning and lifetimes](./img/pig-lifetimes.gif)

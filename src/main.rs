@@ -12,6 +12,9 @@ fn main() {
         .init_resource::<resources::Money>()
         .add_systems(Startup, systems::startup)
         .add_systems(Update, (player::character_movement,))
-        .add_systems(Update, (pig::spawn_pig, pig::pig_lifetime))
+        .add_systems(
+            Update,
+            (pig::spawn_pig, pig::pig_lifetime, pig::pig_movement),
+        )
         .run();
 }

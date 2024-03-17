@@ -2,6 +2,7 @@ use bevy::{input::ButtonInput, prelude::*};
 
 use crate::components;
 
+/// Move the player character based on input
 pub fn character_movement(
     mut characters: Query<(&mut Transform, &components::Player)>,
     input: Res<ButtonInput<KeyCode>>,
