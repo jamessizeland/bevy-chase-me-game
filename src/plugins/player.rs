@@ -1,5 +1,13 @@
 use bevy::{input::ButtonInput, prelude::*};
 
+pub struct PlayerPlugin;
+
+impl Plugin for PlayerPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(Update, character_movement);
+    }
+}
+
 #[derive(Component)]
 pub struct Player {
     pub speed: f32,

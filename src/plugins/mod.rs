@@ -16,6 +16,9 @@
 //! }
 //! ```
 
+pub mod pig;
+pub mod player;
+
 use bevy::{
     app::PluginGroupBuilder,
     prelude::*,

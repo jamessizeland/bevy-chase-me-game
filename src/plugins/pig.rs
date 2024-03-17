@@ -5,6 +5,14 @@ use rand::Rng;
 
 use super::player::Player;
 
+pub struct PigPlugin;
+
+impl Plugin for PigPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(Update, (spawn_pig, pig_lifetime, pig_movement));
+    }
+}
+
 #[derive(Component)]
 pub struct Pig {
     pub lifetime: Timer,

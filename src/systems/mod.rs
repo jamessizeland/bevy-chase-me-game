@@ -11,11 +11,10 @@
 //! - accessing components of entities using queries (Query)
 //! - creating/destroying entities, components, and resources using Commands (Commands)
 //! - sending/receiving events using EventWriter/EventReader
-pub mod pig;
-pub mod player;
-use bevy::{input::ButtonInput, prelude::*, render::camera::ScalingMode};
 
-use crate::{components, resources};
+use bevy::{prelude::*, render::camera::ScalingMode};
+
+use crate::plugins::player::Player;
 
 /// This system runs once at the start of the app
 pub fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
@@ -33,6 +32,6 @@ pub fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
             texture,
             ..default()
         },
-        components::Player { speed: 100.0 },
+        Player { speed: 100.0 },
     ));
 }
