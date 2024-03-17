@@ -37,7 +37,7 @@ jobs:
         run: cargo doc --no-deps
 
       - name: Add redirect
-        run: echo '<meta http-equiv="refresh" content="0;url=index.html">' > target/doc/roguelike_game/index.html
+        run: echo '<meta http-equiv="refresh" content="0;url=roguelike_game/index.html">' > target/doc/index.html
 
       - name: Remove lock file
         run: rm target/doc/.lock
