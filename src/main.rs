@@ -1,38 +1,20 @@
+mod components;
+mod plugins;
+mod systems;
+mod utils;
 use bevy::prelude::*;
+use plugins::app_plugins;
 
-#[derive(Debug, Component)]
-struct Position {
-    x: f32,
-    y: f32,
-}
+// #[derive(Debug, Component)]
+// struct Position {
+//     x: f32,
+//     y: f32,
+// }
 
 fn main() {
     App::new()
-        .add_systems(Startup, setup)
-        // .add_systems(Update, (update_position, print_position))
-        .add_plugins(DefaultPlugins)
+        .add_plugins(app_plugins())
+        .add_systems(Startup, systems::startup)
+        .add_systems(Update, systems::character_movement)
         .run();
-}
-
-/// This system runs once at the start of the app
-fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    commands.spawn(Camera2dBundle::default());
-
-    let texture = asset_server.load("character.png");
-
-    commands.spawn(SpriteBundle {
-        sprite: Sprite {
-            custom_size: Some(Vec2::new(100.0, 100.0)),
-            ..default()
-        },
-        texture,
-        ..default()
-    });
-}
-
-fn print_position(query: Query<(Entity, &Position)>) {
-    // log the entity and position of all entities with a Position component
-    for (entity, position) in query.iter() {
-        info!("{:?} position is {:?}", entity, position);
-    }
 }
