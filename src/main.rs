@@ -1,15 +1,10 @@
 mod components;
 mod plugins;
+mod resources;
 mod systems;
 mod utils;
 use bevy::prelude::*;
 use plugins::app_plugins;
-
-// #[derive(Debug, Component)]
-// struct Position {
-//     x: f32,
-//     y: f32,
-// }
 
 fn main() {
     App::new()
