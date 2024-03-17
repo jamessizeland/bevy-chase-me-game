@@ -39,7 +39,7 @@ jobs:
       - name: Get package name
         id: pkg
         run: |
-          PACKAGE_NAME=$(cargo metadata --format-version=1 | jq -r '.packages[0].name' | tr '-' '_')
+          PACKAGE_NAME=$(grep 'name = ' ./Cargo.toml | sed 's/name = "//' | sed 's/"//' | tr '-' '_')
           echo "package=$PACKAGE_NAME" >> $GITHUB_ENV
 
       - name: Add redirect
