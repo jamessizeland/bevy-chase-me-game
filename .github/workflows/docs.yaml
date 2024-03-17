@@ -36,8 +36,12 @@ jobs:
       - name: Build docs
         run: cargo doc --no-deps
 
+      - name: Get package name
+        id: pkg
+        run: echo "::set-output name=package::$(cargo metadata --format-version=1 | jq -r '.packages[0].name' | tr '-' '_')"
+
       - name: Add redirect
-        run: echo '<meta http-equiv="refresh" content="0;url=roguelike_game/index.html">' > target/doc/index.html
+        run: echo '<meta http-equiv="refresh" content="0;url=${{ steps.pkg.outputs.package }}/index.html">' > target/doc/index.html
 
       - name: Remove lock file
         run: rm target/doc/.lock
