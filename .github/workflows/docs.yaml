@@ -9,8 +9,6 @@ permissions:
 concurrency:
   group: deploy
   cancel-in-progress: false
-env:
-  PACKAGE_NAME: "roguelike_game"
 jobs:
   build:
     name: Build
@@ -45,7 +43,7 @@ jobs:
       #     echo "package=$PACKAGE_NAME" >> $GITHUB_ENV
 
       - name: Add redirect
-        run: echo "<meta http-equiv='refresh' content='0;url=${{env.PACKAGE_NAME}}/index.html'>" > target/doc/index.html
+        run: echo "<meta http-equiv='refresh' content='0;url=bevy/index.html'>" > target/doc/index.html
 
       - name: Remove lock file
         run: rm target/doc/.lock
