@@ -1,10 +1,13 @@
 use bevy::{input::ButtonInput, prelude::*};
 
-use crate::components;
+#[derive(Component)]
+pub struct Player {
+    pub speed: f32,
+}
 
 /// Move the player character based on input
 pub fn character_movement(
-    mut characters: Query<(&mut Transform, &components::Player)>,
+    mut characters: Query<(&mut Transform, &Player)>,
     input: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
 ) {

@@ -1,7 +1,30 @@
 use bevy::{input::ButtonInput, prelude::*};
 
-use crate::{components, resources};
+use crate::resources;
 use rand::Rng;
+
+use super::player::Player;
+
+#[derive(Component)]
+pub struct Pig {
+    pub lifetime: Timer,
+    pub is_moving: bool,
+    pub direction: Vec3,
+    pub stop_timer: Timer,
+    pub move_timer: Timer,
+}
+
+impl Default for Pig {
+    fn default() -> Self {
+        Self {
+            lifetime: Default::default(),
+            is_moving: Default::default(),
+            direction: Default::default(),
+            stop_timer: Default::default(),
+            move_timer: Default::default(),
+        }
+    }
+}
 
 /// Spawn a pig when the player presses the space bar, and deduct the cost from the player's money
 pub fn spawn_pig(
@@ -9,7 +32,7 @@ pub fn spawn_pig(
     asset_server: Res<AssetServer>,
     input: Res<ButtonInput<KeyCode>>,
     mut money: ResMut<resources::Money>,
-    player: Query<&Transform, With<components::Player>>,
+    player: Query<&Transform, With<Player>>,
 ) {
     let pig_cost = 10.0;
     if !input.just_pressed(KeyCode::Space) {
@@ -32,7 +55,7 @@ pub fn spawn_pig(
             transform: *player_transform,
             ..default()
         },
-        components::Pig {
+        Pig {
             lifetime: Timer::from_seconds(5.0, TimerMode::Once),
             move_timer: Timer::from_seconds(1.0, TimerMode::Repeating),
             stop_timer: Timer::from_seconds(0.5, TimerMode::Once),
@@ -45,7 +68,7 @@ pub fn spawn_pig(
 pub fn pig_lifetime(
     mut commands: Commands,
     time: Res<Time>,
-    mut pigs: Query<(Entity, &mut components::Pig)>,
+    mut pigs: Query<(Entity, &mut Pig)>,
     mut money: ResMut<resources::Money>,
 ) {
     for (entity, mut pig) in pigs.iter_mut() {
@@ -60,7 +83,7 @@ pub fn pig_lifetime(
 }
 
 /// Let pigs randomly walk about the map, stopping and starting movement at random intervals
-pub fn pig_movement(mut pigs: Query<(&mut Transform, &mut components::Pig)>, time: Res<Time>) {
+pub fn pig_movement(mut pigs: Query<(&mut Transform, &mut Pig)>, time: Res<Time>) {
     for (mut transform, mut pig) in pigs.iter_mut() {
         if pig.is_moving {
             let movement_amount = 50.0 * time.delta_seconds();
