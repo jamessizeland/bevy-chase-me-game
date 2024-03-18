@@ -33,5 +33,6 @@ pub fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
             ..default()
         },
         Player { speed: 100.0 },
+        Name::new("Player"),
     ));
 }

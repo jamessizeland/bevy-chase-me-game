@@ -1,37 +1,36 @@
-use bevy::{input::ButtonInput, prelude::*};
-
+use super::player::Player;
 use crate::resources;
+use bevy::{input::ButtonInput, prelude::*};
 use rand::Rng;
 
-use super::player::Player;
+/// A pig parent, which spawns pigs
+#[derive(Component)]
+pub struct PigParent;
 
+/// Spawn a pig parent when the game starts
+pub fn spawn_pig_parent(mut commands: Commands) {
+    commands.spawn((SpatialBundle::default(), PigParent, Name::new("Pig Parent")));
+}
+
+/// Plugin to manage pigs
 pub struct PigPlugin;
 
 impl Plugin for PigPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, (spawn_pig, pig_lifetime, pig_movement));
+        app.add_systems(Startup, spawn_pig_parent)
+            .add_systems(Update, (spawn_pig, pig_lifetime, pig_movement))
+            .register_type::<Pig>(); // used for debug inspection
     }
 }
 
-#[derive(Component)]
+#[derive(Component, Default, Reflect)]
+#[reflect(Component)]
 pub struct Pig {
     pub lifetime: Timer,
     pub is_moving: bool,
     pub direction: Vec3,
     pub stop_timer: Timer,
     pub move_timer: Timer,
-}
-
-impl Default for Pig {
-    fn default() -> Self {
-        Self {
-            lifetime: Default::default(),
-            is_moving: Default::default(),
-            direction: Default::default(),
-            stop_timer: Default::default(),
-            move_timer: Default::default(),
-        }
-    }
 }
 
 /// Spawn a pig when the player presses the space bar, and deduct the cost from the player's money
@@ -41,12 +40,14 @@ pub fn spawn_pig(
     input: Res<ButtonInput<KeyCode>>,
     mut money: ResMut<resources::Money>,
     player: Query<&Transform, With<Player>>,
+    parent: Query<Entity, With<PigParent>>,
 ) {
     let pig_cost = 10.0;
     if !input.just_pressed(KeyCode::Space) {
         return;
     }
     let player_transform = player.single();
+    let parent = parent.single();
 
     if money.0 < pig_cost {
         return;
@@ -57,19 +58,25 @@ pub fn spawn_pig(
         pig_cost, money.0
     );
     let texture = asset_server.load("pig.png");
-    commands.spawn((
-        SpriteBundle {
-            texture,
-            transform: *player_transform,
-            ..default()
-        },
-        Pig {
-            lifetime: Timer::from_seconds(5.0, TimerMode::Once),
-            move_timer: Timer::from_seconds(1.0, TimerMode::Repeating),
-            stop_timer: Timer::from_seconds(0.5, TimerMode::Once),
-            ..Default::default()
-        },
-    ));
+
+    // commands.entity(parent).with_children(|commands| {
+    commands
+        .spawn((
+            SpriteBundle {
+                texture,
+                transform: *player_transform,
+                ..default()
+            },
+            Pig {
+                lifetime: Timer::from_seconds(5.0, TimerMode::Once),
+                move_timer: Timer::from_seconds(1.0, TimerMode::Repeating),
+                stop_timer: Timer::from_seconds(0.5, TimerMode::Once),
+                ..Default::default()
+            },
+            Name::new(format!("Pig {}", rand::random::<u16>())),
+        ))
+        .set_parent(parent);
+    // });
 }
 
 /// Remove pigs from the map when their lifetime is up, and give the player money
@@ -84,7 +91,7 @@ pub fn pig_lifetime(
 
         if pig.lifetime.finished() {
             money.0 += 15.0;
-            commands.entity(entity).despawn();
+            commands.entity(entity).remove_parent().despawn();
             info!("Pig sold, gained $15, remaining money: ${}", money.0);
         }
     }

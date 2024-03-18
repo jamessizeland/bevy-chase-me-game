@@ -1,19 +1,23 @@
 use bevy::{input::ButtonInput, prelude::*};
+use bevy_inspector_egui::prelude::*;
 
 pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, character_movement);
+        app.add_systems(Update, character_movement)
+            .register_type::<Player>(); // used for debug inspection
     }
 }
 
-#[derive(Component)]
+#[derive(Component, InspectorOptions, Default, Reflect)]
+#[reflect(Component, InspectorOptions)]
 pub struct Player {
+    #[inspector(min = 0.0)] // set min value that can be input with bevy-inspector-egui
     pub speed: f32,
 }
 
-/// Move the player character based on input
+/// Move the player character based on input. Normalized diagonal movement to keep speed consistent in all directions.
 pub fn character_movement(
     mut characters: Query<(&mut Transform, &Player)>,
     input: Res<ButtonInput<KeyCode>>,
