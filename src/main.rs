@@ -11,8 +11,11 @@ fn main() {
             WorldInspectorPlugin::default().run_if(input_toggle_active(true, KeyCode::Escape)),
         )
         .init_resource::<resources::Money>()
-        .add_plugins(plugins::pig::PigPlugin)
-        .add_plugins(plugins::player::PlayerPlugin)
+        .add_plugins((
+            plugins::player::PlayerPlugin,
+            plugins::pig::PigPlugin,
+            plugins::ui::GameUI,
+        ))
         .add_systems(Startup, systems::startup)
         .run();
 }
