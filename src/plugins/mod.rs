@@ -16,6 +16,10 @@
 //! }
 //! ```
 
+pub mod pig;
+pub mod player;
+pub mod ui;
+
 use bevy::{
     app::PluginGroupBuilder,
     prelude::*,

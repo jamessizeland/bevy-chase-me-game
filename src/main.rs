@@ -1,20 +1,21 @@
-mod components;
 mod plugins;
 mod resources;
 mod systems;
-mod utils;
-use bevy::prelude::*;
-use systems::{pig, player};
+use bevy::{input::common_conditions::input_toggle_active, prelude::*};
+use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 fn main() {
     App::new()
         .add_plugins(plugins::app_plugins())
-        .init_resource::<resources::Money>()
-        .add_systems(Startup, systems::startup)
-        .add_systems(Update, (player::character_movement,))
-        .add_systems(
-            Update,
-            (pig::spawn_pig, pig::pig_lifetime, pig::pig_movement),
+        .add_plugins(
+            WorldInspectorPlugin::default().run_if(input_toggle_active(true, KeyCode::Escape)),
         )
+        .init_resource::<resources::Money>()
+        .add_plugins((
+            plugins::player::PlayerPlugin,
+            plugins::pig::PigPlugin,
+            plugins::ui::GameUI,
+        ))
+        .add_systems(Startup, systems::startup)
         .run();
 }
