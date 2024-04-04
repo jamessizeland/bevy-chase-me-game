@@ -17,6 +17,6 @@ lto = true
 codegen-units = 1
 
 [dependencies]
-bevy = { version = "0.13.0", features = ["dynamic_linking"] }
+bevy = { version = "0.13.1", features = ["dynamic_linking"] }
 bevy-inspector-egui = "0.23.4"
 rand = "0.8.5"
