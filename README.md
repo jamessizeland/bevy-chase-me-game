@@ -1,6 +1,4 @@
-# bevy roguelike farming tutorial
-
-Following <https://youtube.com/playlist?list=PLT_D88-MTFOMLnBeTJJn9LhDON_fvHi6u&si=uFUNjLSoTETidpH6>
+# bevy game exploration
 
 Requirements:
 
@@ -9,8 +7,7 @@ Requirements:
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
-First compile of Bevy projects is slow, but after that it's fast.
-
+First compile of Bevy projects is slow, but after that its fast.
 
 ## Progress
 

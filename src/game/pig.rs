@@ -1,6 +1,10 @@
-use super::player::Player;
-use crate::resources;
-use bevy::{input::ButtonInput, prelude::*};
+use crate::{
+    window::{WINDOW_USABLE_WORLD_WIDTH, WINDOW_WORLD_HEIGHT},
+    AppState,
+};
+
+use super::{player::Player, state::InGameState, GameTime, Score};
+use bevy::prelude::*;
 use rand::Rng;
 
 /// A pig parent, which spawns pigs
@@ -8,8 +12,14 @@ use rand::Rng;
 pub struct PigParent;
 
 /// Spawn a pig parent when the game starts
-pub fn spawn_pig_parent(mut commands: Commands) {
+fn spawn_pig_parent(mut commands: Commands) {
     commands.spawn((SpatialBundle::default(), PigParent, Name::new("Pig Parent")));
+}
+
+fn despawn_all_pigs(mut commands: Commands, query: Query<Entity, With<Pig>>) {
+    for entity in query.iter() {
+        commands.entity(entity).despawn();
+    }
 }
 
 /// Plugin to manage pigs
@@ -18,7 +28,11 @@ pub struct PigPlugin;
 impl Plugin for PigPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, spawn_pig_parent)
-            .add_systems(Update, (spawn_pig, pig_lifetime, pig_movement))
+            .add_systems(
+                Update,
+                (spawn_pig, pig_lifetime, pig_movement).run_if(in_state(InGameState::Play)),
+            )
+            .add_systems(OnExit(AppState::InGame), despawn_all_pigs)
             .register_type::<Pig>(); // used for debug inspection
     }
 }
@@ -33,72 +47,80 @@ pub struct Pig {
     pub move_timer: Timer,
 }
 
-/// Spawn a pig when the player presses the space bar, and deduct the cost from the player's money
-pub fn spawn_pig(
+/// Spawn a pig at a random location on the map, after a random interval
+fn spawn_pig(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    input: Res<ButtonInput<KeyCode>>,
-    mut money: ResMut<resources::Money>,
     player: Query<&Transform, With<Player>>,
     parent: Query<Entity, With<PigParent>>,
+    game_time: ResMut<GameTime>,
+    time: Res<Time>,
 ) {
-    let pig_cost = 10.0;
-    if !input.just_pressed(KeyCode::Space) {
-        return;
-    }
-    let player_transform = player.single();
     let parent = parent.single();
+    let player_transform = player.single();
 
-    if money.0 < pig_cost {
+    let texture = asset_server.load("sprites/pig.png");
+
+    // spawn location, must be at least 20% of the window width away from the player
+    let (random_x, random_y) = loop {
+        let mut rng = rand::thread_rng();
+        let random_x = rng.gen_range(0.0..=WINDOW_USABLE_WORLD_WIDTH as f32);
+        let random_y = rng.gen_range(0.0..=WINDOW_WORLD_HEIGHT as f32);
+        if random_x < player_transform.translation.x - 0.2 * WINDOW_USABLE_WORLD_WIDTH
+            || random_x > player_transform.translation.x + 0.2 * WINDOW_USABLE_WORLD_WIDTH
+            || random_y < player_transform.translation.y - 0.2 * WINDOW_WORLD_HEIGHT
+            || random_y > player_transform.translation.y + 0.2 * WINDOW_WORLD_HEIGHT
+        {
+            break (random_x, random_y);
+        }
+    };
+
+    // spawn pigs every 5 seconds
+    if game_time.time % 5.0 < time.delta_seconds() {
+        info!("Spawning pig");
+    } else {
         return;
     }
-    money.0 -= pig_cost;
-    info!(
-        "Spent ${} on a pig, remaining money: ${}",
-        pig_cost, money.0
-    );
-    let texture = asset_server.load("pig.png");
 
-    // commands.entity(parent).with_children(|commands| {
     commands
         .spawn((
             SpriteBundle {
                 texture,
-                transform: *player_transform,
+                transform: Transform::from_translation(Vec3::new(random_x, random_y, 0.0)),
                 ..default()
             },
             Pig {
-                lifetime: Timer::from_seconds(5.0, TimerMode::Once),
+                lifetime: Timer::from_seconds(30.0, TimerMode::Once),
                 move_timer: Timer::from_seconds(1.0, TimerMode::Repeating),
                 stop_timer: Timer::from_seconds(0.5, TimerMode::Once),
+                direction: random_direction(),
                 ..Default::default()
             },
             Name::new(format!("Pig {}", rand::random::<u16>())),
         ))
         .set_parent(parent);
-    // });
 }
 
-/// Remove pigs from the map when their lifetime is up, and give the player money
-pub fn pig_lifetime(
+/// Remove pigs from the map when their lifetime is up, and give the player score
+fn pig_lifetime(
     mut commands: Commands,
     time: Res<Time>,
     mut pigs: Query<(Entity, &mut Pig)>,
-    mut money: ResMut<resources::Money>,
+    mut score: ResMut<Score>,
 ) {
     for (entity, mut pig) in pigs.iter_mut() {
         pig.lifetime.tick(time.delta());
 
         if pig.lifetime.finished() {
-            money.0 += 15.0;
+            score.0 += 15;
             commands.entity(entity).remove_parent().despawn();
-            info!("Pig sold, gained $15, remaining money: ${}", money.0);
+            info!("Survied! Adding score");
         }
     }
 }
 
 /// Let pigs randomly walk about the map, stopping and starting movement at random intervals
-pub fn pig_movement(mut pigs: Query<(&mut Transform, &mut Pig)>, time: Res<Time>) {
+fn pig_movement(mut pigs: Query<(&mut Transform, &mut Pig)>, time: Res<Time>) {
     for (mut transform, mut pig) in pigs.iter_mut() {
         if pig.is_moving {
             let movement_amount = 50.0 * time.delta_seconds();
@@ -126,6 +148,23 @@ pub fn pig_movement(mut pigs: Query<(&mut Transform, &mut Pig)>, time: Res<Time>
         }
     }
 }
+
+// /// pigs must move towards the player
+// fn pig_movement(
+//     mut pigs: Query<(&mut Transform, &mut Pig)>,
+//     player: Query<&Transform, With<Player>>,
+//     time: Res<Time>,
+// ) {
+//     let player_transform = player.single();
+//     for (mut transform, _) in pigs.iter_mut() {
+//         let movement_amount = 50.0 * time.delta_seconds();
+//         let mut translation = Vec3::ZERO;
+//         let direction = player_transform.translation - transform.translation;
+//         let direction = direction.normalize();
+//         translation += direction * movement_amount;
+//         transform.translation += translation;
+//     }
+// }
 
 fn random_direction() -> Vec3 {
     let mut rng = rand::thread_rng();
