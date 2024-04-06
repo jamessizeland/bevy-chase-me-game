@@ -14,11 +14,6 @@ impl Default for Score {
     }
 }
 
-#[derive(Resource)]
-pub struct PlayerSpeed {
-    points: usize,
-}
-
 /// Time in the game
 #[derive(Resource)]
 pub struct GameTime {
@@ -28,32 +23,5 @@ pub struct GameTime {
 impl Default for GameTime {
     fn default() -> Self {
         GameTime { time: 0.0 }
-    }
-}
-
-impl PlayerSpeed {
-    const DEFAULT_POINTS: usize = 3;
-    const POINT_SPEEDS: &'static [f32] = &[250., 325., 400., 500.0, 600., 700., 900., 1100., 1300.];
-
-    pub fn change_points(&mut self, delta_points: i32) {
-        let points = (self.points as i32 + delta_points).max(0);
-        self.points = (points as usize).min(Self::POINT_SPEEDS.len() - 1);
-        println!(
-            "PlayerSpeed.points: {}/{}",
-            self.points,
-            Self::POINT_SPEEDS.len() - 1
-        );
-    }
-
-    pub fn get_speed(&self) -> f32 {
-        Self::POINT_SPEEDS[self.points]
-    }
-}
-
-impl Default for PlayerSpeed {
-    fn default() -> Self {
-        PlayerSpeed {
-            points: Self::DEFAULT_POINTS,
-        }
     }
 }
