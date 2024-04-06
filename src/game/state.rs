@@ -1,4 +1,4 @@
-use super::{events::*, views, GameTime, PlayerSpeed, Score};
+use super::{events::*, views, GameTime, Score};
 use crate::AppState;
 use bevy::prelude::*;
 
@@ -83,7 +83,6 @@ fn start_up(mut next_state: ResMut<NextState<InGameState>>) {
 fn clean_up(mut commands: Commands, mut next_state: ResMut<NextState<InGameState>>) {
     next_state.set(InGameState::None);
     commands.insert_resource(Score::default());
-    commands.insert_resource(PlayerSpeed::default());
     commands.insert_resource(GameTime::default());
 }
 
