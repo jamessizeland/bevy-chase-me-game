@@ -10,7 +10,7 @@ pub struct UiPlugin;
 
 impl Plugin for UiPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(ClearColor(Color::rgb(0., 0.2, 0.)))
+        app.insert_resource(ClearColor(Color::rgb(0., 0.1, 0.1)))
             .add_systems(Startup, spawn_camera)
             .add_systems(Update, guard_resolution);
     }
