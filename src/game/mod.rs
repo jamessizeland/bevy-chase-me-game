@@ -15,7 +15,7 @@ use self::{
     walls::WallsPlugin,
 };
 use bevy::prelude::*;
-use bevy_xpbd_2d::prelude::*;
+use bevy_rapier2d::prelude::*;
 use resources::*;
 
 pub struct GamePlugin;
@@ -30,13 +30,14 @@ impl Plugin for GamePlugin {
                 // PigPlugin,
                 WallsPlugin,
                 MovementPlugin,
-                PhysicsPlugins::default(),
-                PhysicsDebugPlugin::default(),
+                RapierPhysicsPlugin::<NoUserData>::default(),
+                RapierDebugRenderPlugin::default(),
+                // PhysicsPlugins::default(),
+                // PhysicsDebugPlugin::default(),
             ))
             // Initialize Game Resources
             .init_resource::<Score>()
             .init_resource::<GameTime>()
-            .insert_resource(Gravity::ZERO)
             .add_systems(
                 Update,
                 (update_game_time).run_if(in_state(InGameState::Play)),
