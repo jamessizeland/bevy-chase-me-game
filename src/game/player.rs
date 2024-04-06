@@ -6,7 +6,7 @@ use crate::{
 use bevy::prelude::*;
 use bevy_inspector_egui::prelude::*;
 use bevy_prototype_lyon::prelude::*;
-use bevy_xpbd_2d::prelude::*;
+use bevy_rapier2d::prelude::*;
 
 pub struct PlayerPlugin;
 
@@ -60,9 +60,13 @@ fn spawn_player(mut commands: Commands) {
         Name::new("Player"),
         Momentum::new(5.0, 1.3, 10.0),
         KeyboardMovement,
-        Collider::circle(7.5),
+        Collider::ball(7.5),
+        ColliderMassProperties::Density(0.1),
         Restitution::new(0.9),
         RigidBody::Dynamic,
+        Ccd::enabled(),
+        GravityScale(0.0),
+        Velocity::default(),
         Player,
     ));
 }

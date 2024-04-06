@@ -1,5 +1,6 @@
 use super::state::InGameState;
 use bevy::{prelude::*, window::PrimaryWindow};
+use bevy_rapier2d::dynamics::Velocity;
 
 pub struct MovementPlugin;
 
@@ -33,7 +34,6 @@ pub fn bounded_movement(
 
 #[derive(Component, Default, Clone, Copy)]
 pub struct Momentum {
-    pub velocity: Vec2,
     pub max_speed: f32,
     pub mass: f32,
     pub thrust: f32,
@@ -45,7 +45,6 @@ pub struct Friction(pub f32);
 impl Momentum {
     pub fn new(max_speed: f32, mass: f32, thrust: f32) -> Self {
         Self {
-            velocity: Vec2::ZERO,
             max_speed,
             mass,
             thrust,
@@ -59,11 +58,11 @@ pub struct KeyboardMovement;
 /// This system changes the velocity vector of objects with Momentum based on keyboard input. Pressing a move direction key increases the velocity in that direction based on the mass and thrust of the object. Releasing the key decreases the velocity in that direction based on the friction and mass of the object.
 pub fn keyboard_movement(
     keyboard_input: Res<ButtonInput<KeyCode>>,
-    mut objects: Query<(&mut Transform, &KeyboardMovement, &mut Momentum)>,
+    mut objects: Query<(&mut Transform, &KeyboardMovement, &Momentum, &mut Velocity)>,
     friction: Res<Friction>,
     time: Res<Time>,
 ) {
-    for (mut transform, _, mut momentum) in &mut objects {
+    for (mut transform, _, momentum, mut velocity) in &mut objects {
         let mut acceleration = Vec2::ZERO;
         if keyboard_input.pressed(KeyCode::KeyW) || keyboard_input.pressed(KeyCode::ArrowUp) {
             acceleration.y += momentum.thrust / momentum.mass;
@@ -77,15 +76,15 @@ pub fn keyboard_movement(
         if keyboard_input.pressed(KeyCode::KeyD) || keyboard_input.pressed(KeyCode::ArrowRight) {
             acceleration.x += momentum.thrust / momentum.mass;
         }
-        momentum.velocity += acceleration * time.delta_seconds();
-        momentum.velocity *= 1.0 - friction.0 * time.delta_seconds();
-        momentum.velocity = momentum.velocity.clamp(
+        velocity.linvel += acceleration * time.delta_seconds();
+        velocity.linvel *= 1.0 - friction.0 * time.delta_seconds();
+        velocity.linvel = velocity.linvel.clamp(
             Vec2::splat(-momentum.max_speed),
             Vec2::splat(momentum.max_speed),
         );
-        transform.translation += Vec3::new(momentum.velocity.x, momentum.velocity.y, 0.0);
+        transform.translation += Vec3::new(velocity.linvel.x, velocity.linvel.y, 0.0);
         // rotate the object to face the direction of movement assuming that the object is facing up to begin with
-        let angle = momentum.velocity.angle_between(Vec2::Y);
+        let angle = velocity.linvel.angle_between(Vec2::Y);
         transform.rotation = Quat::from_rotation_z(-angle);
     }
 }
