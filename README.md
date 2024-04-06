@@ -11,10 +11,6 @@ First compile of Bevy projects is slow, but after that its fast.
 
 ## Progress
 
-Pig Spawning and lifetimes
+Move with momentum
 
-![Pig Spawning and lifetimes](./img/pig-lifetimes.gif)
-
-UI and Debug Interface
-
-![UI and Debug Interface](./img/pig-lifetimes2.gif)
+![move_with_momentum](./img/move-with-momentum.gif)
