@@ -1,5 +1,6 @@
+mod collisions;
+mod enemy;
 mod events;
-// mod pig;
 mod movement;
 mod player;
 mod resources;
@@ -8,7 +9,8 @@ mod views;
 mod walls;
 
 use self::{
-    // pig::PigPlugin,
+    collisions::CollisionsPlugin,
+    enemy::EnemyPlugin,
     movement::MovementPlugin,
     player::PlayerPlugin,
     state::{GameStatePlugin, InGameState},
@@ -27,13 +29,12 @@ impl Plugin for GamePlugin {
             .add_plugins((
                 GameStatePlugin,
                 PlayerPlugin,
-                // PigPlugin,
+                EnemyPlugin,
                 WallsPlugin,
                 MovementPlugin,
                 RapierPhysicsPlugin::<NoUserData>::default(),
                 RapierDebugRenderPlugin::default(),
-                // PhysicsPlugins::default(),
-                // PhysicsDebugPlugin::default(),
+                CollisionsPlugin,
             ))
             // Initialize Game Resources
             .init_resource::<Score>()
