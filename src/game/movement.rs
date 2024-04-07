@@ -1,4 +1,8 @@
-use super::state::InGameState;
+use super::{
+    enemy::{Enemy, EnemyState},
+    player::Player,
+    state::InGameState,
+};
 use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_rapier2d::dynamics::Velocity;
 
@@ -8,7 +12,12 @@ impl Plugin for MovementPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(Friction(0.9)).add_systems(
             Update,
-            (bounded_movement, keyboard_movement).run_if(in_state(InGameState::Play)),
+            (
+                bounded_movement,
+                player_movement,
+                chase_movement.after(player_movement),
+            )
+                .run_if(in_state(InGameState::Play)),
         );
     }
 }
@@ -32,17 +41,15 @@ pub fn bounded_movement(
     }
 }
 
-#[derive(Component, Default, Clone, Copy)]
+#[derive(Component, Default, Clone, Copy, Debug, Reflect)]
 pub struct Momentum {
     pub max_speed: f32,
     pub mass: f32,
     pub thrust: f32,
 }
 
-#[derive(Resource)]
-pub struct Friction(pub f32);
-
 impl Momentum {
+    /// Create a new Momentum component with the given max_speed, mass, and thrust
     pub fn new(max_speed: f32, mass: f32, thrust: f32) -> Self {
         Self {
             max_speed,
@@ -52,13 +59,16 @@ impl Momentum {
     }
 }
 
+#[derive(Resource)]
+pub struct Friction(pub f32);
+
 #[derive(Component)]
 pub struct KeyboardMovement;
 
-/// This system changes the velocity vector of objects with Momentum based on keyboard input. Pressing a move direction key increases the velocity in that direction based on the mass and thrust of the object. Releasing the key decreases the velocity in that direction based on the friction and mass of the object.
-pub fn keyboard_movement(
+/// This system changes the velocity vector of objects with Momentum based on player input. Pressing a move direction key increases the velocity in that direction based on the mass and thrust of the object. Releasing the key decreases the velocity in that direction based on the friction and mass of the object.
+pub fn player_movement(
     keyboard_input: Res<ButtonInput<KeyCode>>,
-    mut objects: Query<(&mut Transform, &KeyboardMovement, &Momentum, &mut Velocity)>,
+    mut objects: Query<(&mut Transform, &Player, &Momentum, &mut Velocity)>,
     friction: Res<Friction>,
     time: Res<Time>,
 ) {
@@ -86,5 +96,58 @@ pub fn keyboard_movement(
         // rotate the object to face the direction of movement assuming that the object is facing up to begin with
         let angle = velocity.linvel.angle_between(Vec2::Y);
         transform.rotation = Quat::from_rotation_z(-angle);
+    }
+}
+
+/// This system changes the velocity vector of objects with Chaser based on the position of the target object. The object will move towards the closest target object at a speed determined by the mass and thrust of the object.
+pub fn chase_movement(
+    mut commands: Commands,
+    mut objects: Query<(Entity, &Transform, &Enemy, &Momentum, &mut Velocity)>,
+    target: Query<&Transform, With<Player>>,
+    time: Res<Time>,
+) {
+    for (entity, transform, enemy, momentum, mut velocity) in objects.iter_mut() {
+        match enemy.state {
+            EnemyState::Moving => {
+                // find the closest target
+                let target_transform = target.iter().fold(None, |closest, target| {
+                    let distance = transform.translation.distance(target.translation);
+                    closest.map_or(Some((distance, target)), |(closest_distance, _)| {
+                        if distance < closest_distance {
+                            Some((distance, target))
+                        } else {
+                            closest
+                        }
+                    })
+                });
+                // accelerate towards the target
+                let Some((_dist, target_transform)) = target_transform else {
+                    warn!("no target found for chaser movement");
+                    return;
+                };
+                let direction =
+                    target_transform.translation.truncate() - transform.translation.truncate();
+                let acceleration = direction.normalize() * momentum.thrust / momentum.mass;
+
+                velocity.linvel += acceleration * time.delta_seconds();
+                velocity.linvel = velocity.linvel.clamp(
+                    Vec2::splat(-momentum.max_speed),
+                    Vec2::splat(momentum.max_speed),
+                );
+                let new_translation =
+                    Vec3::new(velocity.linvel.x, velocity.linvel.y, 0.0) + transform.translation;
+                // rotate the object to face the direction of movement assuming that the object is facing up to begin with
+                let angle = velocity.linvel.angle_between(Vec2::Y);
+                let new_rotation = Quat::from_rotation_z(-angle);
+                commands.entity(entity).insert(Transform {
+                    translation: new_translation,
+                    rotation: new_rotation,
+                    ..*transform
+                });
+            }
+            EnemyState::Stopped => {
+                velocity.linvel = Vec2::ZERO;
+            }
+        }
     }
 }
