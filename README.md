@@ -7,6 +7,15 @@ Requirements:
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
+```sh
+# install wasm-server-runner
+cargo install wasm-server-runner
+```
+
+```sh
+cargo run --target wasm32-unknown-unknown
+```
+
 First compile of Bevy projects is slow, but after that its fast.
 
 ## Progress
