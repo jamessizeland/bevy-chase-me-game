@@ -6,11 +6,11 @@
 use bevy::prelude::*;
 
 #[derive(Resource)]
-pub struct Score(pub u32);
+pub struct Score(pub f32);
 
 impl Default for Score {
     fn default() -> Self {
-        Score(0)
+        Score(0.0)
     }
 }
 
