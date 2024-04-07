@@ -8,6 +8,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  binary: bevy-arcade-exploration # update with the name of the main binary
 
 jobs:
   build:
@@ -33,7 +34,10 @@ jobs:
       - name: Install wasm target
         run: rustup target install wasm32-unknown-unknown && cargo install -f wasm-bindgen-cli --version 0.2.90
       - name: Build
-        run: cargo build --release --target wasm32-unknown-unknown && wasm-bindgen --out-dir ./out/ --target web ./target/wasm32-unknown-unknown/release/bevy-arcade-exploration.wasm
+        run: cargo build --release --target wasm32-unknown-unknown
+      - name: Prepare package
+        run: |
+          wasm-bindgen --out-dir ./out/ --target web ./target/wasm32-unknown-unknown/release/${{ env.binary }}.wasm
       - name: Copy
         run: cp -R assets out/ && cp index.html out/index.html && ls -R out
       - name: Push
