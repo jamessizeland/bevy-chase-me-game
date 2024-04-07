@@ -1,8 +1,8 @@
-use bevy::app::AppExit;
-use bevy::prelude::*;
-use crate::AppState;
 use crate::common::better_button::ReleaseButton;
 use crate::common::styles::{get_full_screen_menu_node_bundle, spawn_full_screen_menu_button};
+use crate::AppState;
+use bevy::app::AppExit;
+use bevy::prelude::*;
 
 #[derive(Component)]
 pub struct MenuView;
@@ -11,23 +11,21 @@ pub struct PlayButton;
 #[derive(Component, Default)]
 pub struct QuitButton;
 
-pub fn spawn_menu_ui(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>
-) {
-    commands.spawn((
-        MenuView {},
-        get_full_screen_menu_node_bundle(),
-    )).with_children(|builder| {
-        spawn_full_screen_menu_button::<PlayButton>(builder, &asset_server, "Play", KeyCode::KeyP);
-        spawn_full_screen_menu_button::<QuitButton>(builder, &asset_server, "Quit", KeyCode::KeyQ);
-    });
+pub fn spawn_menu_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
+    commands
+        .spawn((MenuView {}, get_full_screen_menu_node_bundle()))
+        .with_children(|builder| {
+            spawn_full_screen_menu_button::<PlayButton>(
+                builder,
+                &asset_server,
+                "Play",
+                KeyCode::KeyP,
+            );
+            // spawn_full_screen_menu_button::<QuitButton>(builder, &asset_server, "Quit", KeyCode::KeyQ);
+        });
 }
 
-pub fn despawn_menu_ui(
-    mut commands: Commands,
-    root_query: Query<Entity, With<MenuView>>
-) {
+pub fn despawn_menu_ui(mut commands: Commands, root_query: Query<Entity, With<MenuView>>) {
     if let Ok(root) = root_query.get_single() {
         commands.entity(root).despawn_recursive();
     }
