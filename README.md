@@ -14,3 +14,7 @@ First compile of Bevy projects is slow, but after that its fast.
 Move with momentum
 
 ![move_with_momentum](./img/move-with-momentum.gif)
+
+Game loop
+
+![game_loop](./img/game-loop1.gif)
