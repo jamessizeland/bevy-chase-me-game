@@ -110,9 +110,7 @@ fn spawn_enemy(
     let bias = (score.0 / 100.0).clamp(0.5, 2.0); // the bias is the percentage of the max power of the enemy that the new enemy should have
     let (momentum, enemy) = max_enemy_strength.get_enemy_stats(bias);
 
-    let radius = max_enemy_strength
-        .get_radius(momentum.mass)
-        .clamp(2.0, height / 2.0 - 1.0); // radius of the enemy
+    let radius = max_enemy_strength.get_radius(momentum.mass); // radius of the enemy
 
     assert!(
         radius < width / 2.0 && radius < height / 2.0,
@@ -264,7 +262,7 @@ impl MaxEnemyStrength {
     }
     /// Generate the radius of the new enemy based on the max radius of the enemy, max mass and its current mass
     fn get_radius(&self, mass: f32) -> f32 {
-        let mass_ratio = self.max_mass / mass;
+        let mass_ratio = (mass / self.max_mass).clamp(0.1, 1.0);
         self.max_radius * mass_ratio
     }
     /// Get the colour of the enemy based on its momentum and energy
