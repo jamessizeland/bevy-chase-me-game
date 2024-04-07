@@ -226,10 +226,10 @@ impl Default for MaxEnemyStrength {
             max_max_speed: 12.0,
             max_max_energy: 120.0,
             max_recharge_rate: 60.0,
-            max_mass: 5.0,
+            max_mass: 10.0,
             max_thrust: 20.0,
             max_lifetime: 120.0,
-            max_radius: 5.0,
+            max_radius: 10.0,
         }
     }
 }
@@ -263,7 +263,7 @@ impl MaxEnemyStrength {
     /// Generate the radius of the new enemy based on the max radius of the enemy, max mass and its current mass
     fn get_radius(&self, mass: f32) -> f32 {
         let mass_ratio = (mass / self.max_mass).clamp(0.1, 1.0);
-        self.max_radius * mass_ratio
+        (self.max_radius * mass_ratio).clamp(2.0, self.max_radius)
     }
     /// Get the colour of the enemy based on its momentum and energy
     fn get_colour(&self, momentum: &Momentum, enemy: &Enemy) -> Color {
@@ -298,32 +298,9 @@ impl MaxEnemyStrength {
         let difficulty = calc_strength(momentum, enemy);
         let max_difficulty = self.get_power();
         let radius = self.get_radius(momentum.mass);
-        let relative_difficulty = difficulty / max_difficulty;
-        // if relative_difficulty < 0.33 {
-        //     GeometryBuilder::build_as(&shapes::Circle {
-        //         radius,
-        //         center: Vec2::ZERO,
-        //     })
-        // } else if relative_difficulty < 0.66 {
-        //     GeometryBuilder::build_as(&shapes::Polygon {
-        //         points: vec![
-        //             Vec2::new(-radius, -radius),
-        //             Vec2::new(radius, -radius),
-        //             Vec2::new(0.0, radius),
-        //         ],
-        //         closed: true,
-        //     })
-        // } else {
-        //     GeometryBuilder::build_as(&shapes::Polygon {
-        //         points: vec![
-        //             Vec2::new(-radius, -radius),
-        //             Vec2::new(radius, -radius),
-        //             Vec2::new(0.0, radius),
-        //             Vec2::new(-radius, radius),
-        //         ],
-        //         closed: true,
-        //     })
-        // }
+        let _relative_difficulty = difficulty / max_difficulty;
+        // have 4 different shapes based on the difficulty level
+        // a circle, a triangle, a square and a pentagon
         GeometryBuilder::build_as(&shapes::Circle {
             radius,
             center: Vec2::ZERO,
