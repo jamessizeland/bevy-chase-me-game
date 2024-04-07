@@ -1,5 +1,5 @@
 [package]
-name = "bevy"
+name = "bevy-chase-me"
 version = "0.1.0"
 edition = "2021"
 
@@ -17,8 +17,11 @@ lto = true
 codegen-units = 1
 
 [dependencies]
-bevy = { version = "0.13.1", features = ["dynamic_linking"] }
+bevy = { version = "0.13.1" }
 bevy-inspector-egui = "0.23.4"
 bevy_prototype_lyon = "0.11.0"
-bevy_rapier2d = { version = "0.25.0", features = ["debug-render-2d"] }
+bevy_rapier2d = { version = "0.25.0", features = [
+    "debug-render-2d",
+    "wasm-bindgen",
+] }
 rand = "0.8.5"
