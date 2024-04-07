@@ -47,10 +47,9 @@ fn spawn_player(mut commands: Commands) {
             spatial: SpatialBundle {
                 transform: Transform {
                     translation: start_pos,
-                    scale: Vec3::new(2.0, 2.0, 1.0),
+                    scale: Vec3::new(1.0, 1.0, 1.0),
                     ..default()
                 },
-                visibility: Visibility::Visible,
                 ..default()
             },
             ..default()
@@ -58,16 +57,17 @@ fn spawn_player(mut commands: Commands) {
         Fill::color(Color::SILVER),
         Stroke::new(Color::BLACK, 1.0),
         Name::new("Player"),
-        Momentum::new(5.0, 1.3, 10.0),
+        Momentum::new(8.0, 1.3, 15.0),
         KeyboardMovement,
         Collider::ball(7.5),
-        ColliderMassProperties::Density(0.1),
+        ColliderMassProperties::Density(0.6),
         Restitution::new(0.9),
         RigidBody::Dynamic,
         Ccd::enabled(),
         GravityScale(0.0),
         Velocity::default(),
         Player,
+        ActiveEvents::all(),
     ));
 }
 
