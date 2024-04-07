@@ -6,17 +6,12 @@
 use bevy::prelude::*;
 
 #[derive(Resource)]
-pub struct Score(pub u32);
+pub struct Score(pub f32);
 
 impl Default for Score {
     fn default() -> Self {
-        Score(0)
+        Score(0.0)
     }
-}
-
-#[derive(Resource)]
-pub struct PlayerSpeed {
-    points: usize,
 }
 
 /// Time in the game
@@ -28,32 +23,5 @@ pub struct GameTime {
 impl Default for GameTime {
     fn default() -> Self {
         GameTime { time: 0.0 }
-    }
-}
-
-impl PlayerSpeed {
-    const DEFAULT_POINTS: usize = 3;
-    const POINT_SPEEDS: &'static [f32] = &[250., 325., 400., 500.0, 600., 700., 900., 1100., 1300.];
-
-    pub fn change_points(&mut self, delta_points: i32) {
-        let points = (self.points as i32 + delta_points).max(0);
-        self.points = (points as usize).min(Self::POINT_SPEEDS.len() - 1);
-        println!(
-            "PlayerSpeed.points: {}/{}",
-            self.points,
-            Self::POINT_SPEEDS.len() - 1
-        );
-    }
-
-    pub fn get_speed(&self) -> f32 {
-        Self::POINT_SPEEDS[self.points]
-    }
-}
-
-impl Default for PlayerSpeed {
-    fn default() -> Self {
-        PlayerSpeed {
-            points: Self::DEFAULT_POINTS,
-        }
     }
 }
