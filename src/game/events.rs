@@ -15,3 +15,11 @@ pub struct TogglePauseRequested;
 /// Event for the end of the game.
 #[derive(Event, Default)]
 pub struct EndGameTriggered;
+
+/// Event for requesting the options menu.
+#[derive(Event, Default)]
+pub struct OptionsRequested;
+
+/// Event for updating game options.
+#[derive(Event, Default)]
+pub struct UpdateOptions;
