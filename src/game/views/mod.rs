@@ -1,8 +1,10 @@
-pub mod pause;
-pub mod prep;
-pub mod score;
-pub mod summary;
+mod options;
+mod pause;
+mod prep;
+mod score;
+mod summary;
 
+pub use options::*;
 pub use pause::*;
 pub use prep::*;
 pub use score::*;

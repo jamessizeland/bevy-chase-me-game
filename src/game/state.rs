@@ -9,6 +9,7 @@ pub enum InGameState {
     #[default]
     None,
     Preparation,
+    Options,
     Play,
     Pause,
     Summary,
@@ -24,6 +25,8 @@ impl Plugin for GameStatePlugin {
             .add_event::<MenuRequested>()
             .add_event::<TogglePauseRequested>()
             .add_event::<EndGameTriggered>()
+            .add_event::<OptionsRequested>()
+            .add_event::<UpdateOptions>()
             // Restart Game View States
             .add_systems(OnEnter(AppState::RestartInGame), continue_restart_game)
             // Main Game View States
@@ -44,6 +47,9 @@ impl Plugin for GameStatePlugin {
             // Summary View States
             .add_systems(OnEnter(InGameState::Summary), views::spawn_summary_view)
             .add_systems(OnExit(InGameState::Summary), views::despawn_summary_view)
+            // Options View States
+            .add_systems(OnEnter(InGameState::Options), views::spawn_options_view)
+            .add_systems(OnExit(InGameState::Options), views::despawn_options_view)
             // Main Game Loop
             .add_systems(
                 Update,
@@ -59,6 +65,10 @@ impl Plugin for GameStatePlugin {
             )
             .add_systems(
                 Update,
+                (views::check_options_interactions).run_if(in_state(InGameState::Options)),
+            )
+            .add_systems(
+                Update,
                 (views::check_summary_interactions,).run_if(in_state(InGameState::Summary)),
             )
             .add_systems(
@@ -68,6 +78,7 @@ impl Plugin for GameStatePlugin {
                     check_restart_condition,
                     check_toggle_pause_condition,
                     check_summary_condition,
+                    check_options_condition,
                 ),)
                     .run_if(in_state(AppState::InGame)),
             );
@@ -92,7 +103,8 @@ pub fn check_preparation_end_condition(
     mut next_state: ResMut<NextState<InGameState>>,
 ) {
     if let Some(key) = keyboard_input.get_just_pressed().next() {
-        if *key != KeyCode::ArrowLeft && *key != KeyCode::ArrowRight {
+        println!("Key pressed: {:?}", key);
+        if *key != KeyCode::Escape {
             next_state.set(InGameState::Play);
         }
     } else if mouse_input.get_just_pressed().next() != None {
@@ -110,6 +122,18 @@ pub fn check_menu_condition(
 
     menu_requested_events.clear();
     next_state.set(AppState::Menu);
+}
+
+pub fn check_options_condition(
+    mut options_requested_events: EventReader<OptionsRequested>,
+    mut next_state: ResMut<NextState<InGameState>>,
+) {
+    if options_requested_events.is_empty() {
+        return;
+    }
+
+    options_requested_events.clear();
+    next_state.set(InGameState::Options);
 }
 
 pub fn check_restart_condition(
@@ -159,10 +183,15 @@ pub fn check_toggle_pause_condition(
     if !toggle {
         return;
     }
-
-    if *current_state.get() == InGameState::Play {
-        next_state.set(InGameState::Pause);
-    } else {
-        next_state.set(InGameState::Play);
+    match *current_state.get() {
+        InGameState::Play | InGameState::Preparation | InGameState::Options => {
+            next_state.set(InGameState::Pause);
+        }
+        InGameState::Pause => {
+            next_state.set(InGameState::Play);
+        }
+        other => {
+            warn!("Invalid state transition: {:?}", other);
+        }
     }
 }

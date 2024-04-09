@@ -25,3 +25,4 @@ bevy_rapier2d = { version = "0.25.0", features = [
     "wasm-bindgen",
 ] }
 rand = "0.8.5"
+belly = { git = "https://github.com/jkb0o/belly.git", branch = "main" }

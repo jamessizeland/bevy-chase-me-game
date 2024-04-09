@@ -2,17 +2,25 @@ use crate::common::better_button::ReleaseButton;
 use crate::common::styles::{
     get_full_screen_menu_node_bundle, spawn_full_screen_menu_button, spawn_full_screen_menu_header,
 };
-use crate::game::events::{MenuRequested, RestartRequested, TogglePauseRequested};
+use crate::game::events::{
+    MenuRequested, OptionsRequested, RestartRequested, TogglePauseRequested,
+};
 use bevy::prelude::*;
 
 #[derive(Component)]
 pub struct PauseView;
+
 #[derive(Component, Default)]
 pub struct ContinueButton;
+
 #[derive(Component, Default)]
 pub struct RestartButton;
+
 #[derive(Component, Default)]
 pub struct MenuButton;
+
+#[derive(Component, Default)]
+pub struct OptionsButton;
 
 pub fn spawn_pause_view(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands
@@ -37,6 +45,12 @@ pub fn spawn_pause_view(mut commands: Commands, asset_server: Res<AssetServer>) 
                 "Menu",
                 KeyCode::KeyM,
             );
+            spawn_full_screen_menu_button::<OptionsButton>(
+                parent,
+                &asset_server,
+                "Options",
+                KeyCode::KeyO,
+            );
         });
 }
 
@@ -50,7 +64,9 @@ pub fn check_pause_interactions(
     menu_button_query: Query<&ReleaseButton, With<MenuButton>>,
     restart_button_query: Query<&ReleaseButton, With<RestartButton>>,
     continue_button_query: Query<&ReleaseButton, With<ContinueButton>>,
+    options_button_query: Query<&ReleaseButton, With<OptionsButton>>,
     mut menu_requested_events: EventWriter<MenuRequested>,
+    mut options_requested_events: EventWriter<OptionsRequested>,
     mut restart_requested_events: EventWriter<RestartRequested>,
     mut toggle_pause_requested_events: EventWriter<TogglePauseRequested>,
 ) {
@@ -71,6 +87,13 @@ pub fn check_pause_interactions(
     for button in continue_button_query.iter() {
         if button.just_released {
             toggle_pause_requested_events.send_default();
+            return;
+        }
+    }
+
+    for button in options_button_query.iter() {
+        if button.just_released {
+            options_requested_events.send_default();
             return;
         }
     }
