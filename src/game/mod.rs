@@ -33,6 +33,7 @@ impl Plugin for GamePlugin {
                 WallsPlugin,
                 MovementPlugin,
                 RapierPhysicsPlugin::<NoUserData>::default(),
+                #[cfg(debug_assertions)]
                 RapierDebugRenderPlugin::default(),
                 CollisionsPlugin,
             ))
