@@ -1,3 +1,5 @@
+use std::f32::consts::PI;
+
 use super::{
     enemy::{Enemy, EnemyState},
     player::Player,
@@ -138,7 +140,7 @@ pub fn chase_movement(
                     Vec3::new(velocity.linvel.x, velocity.linvel.y, 0.0) + transform.translation;
                 // rotate the object to face the direction of movement assuming that the object is facing up to begin with
                 let angle = velocity.linvel.angle_between(Vec2::Y);
-                let new_rotation = Quat::from_rotation_z(-angle);
+                let new_rotation = Quat::from_rotation_z(-angle + PI);
                 commands.entity(entity).insert(Transform {
                     translation: new_translation,
                     rotation: new_rotation,
