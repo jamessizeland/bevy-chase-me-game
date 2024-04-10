@@ -2,6 +2,7 @@ mod collisions;
 mod enemy;
 mod events;
 mod movement;
+mod particles;
 mod player;
 mod resources;
 mod state;
@@ -12,6 +13,7 @@ use self::{
     collisions::CollisionsPlugin,
     enemy::EnemyPlugin,
     movement::MovementPlugin,
+    particles::ParticlesPlugin,
     player::PlayerPlugin,
     state::{GameStatePlugin, InGameState},
     walls::WallsPlugin,
@@ -36,6 +38,7 @@ impl Plugin for GamePlugin {
                 #[cfg(debug_assertions)]
                 RapierDebugRenderPlugin::default(),
                 CollisionsPlugin,
+                ParticlesPlugin,
             ))
             // Initialize Game Resources
             .init_resource::<Score>()

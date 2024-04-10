@@ -24,11 +24,12 @@ impl Default for EnemyStrengthRange {
     fn default() -> Self {
         EnemyStrengthRange {
             max_speed: (5.0, 12.0),
-            max_energy: (50.0, 120.0),
+            max_energy: (30.0, 120.0),
             recharge_rate: (10.0, 60.0),
             mass: (1.0, 10.0),
             thrust: (10.0, 20.0),
             lifetime: (30.0, 120.0),
+            // lifetime: (5.0, 10.0), // reduce lifetime for testing purposes (to make it easier to test the game
             radius: (5.0, 15.0),
         }
     }
@@ -69,7 +70,8 @@ impl EnemyStrengthRange {
     pub fn get_colour(&self, momentum: &Momentum, enemy: &Enemy) -> Color {
         let difficulty = calc_strength(momentum, enemy);
         let (min_difficulty, max_difficulty) = self.get_power_range();
-        let relative_difficulty = (difficulty - min_difficulty) / (max_difficulty - min_difficulty);
+        let relative_difficulty =
+            (difficulty - min_difficulty) / ((max_difficulty * 2.0) - min_difficulty);
         // have 10 difficulty colours
         if relative_difficulty < 0.1 {
             Color::RED
@@ -97,8 +99,8 @@ impl EnemyStrengthRange {
     pub fn get_shape(&self, momentum: &Momentum, enemy: &Enemy) -> Path {
         let difficulty = calc_strength(momentum, enemy);
         let (min_difficulty, max_difficulty) = self.get_power_range();
-        let _relative_difficulty =
-            (difficulty - min_difficulty) / (max_difficulty - min_difficulty);
+        let relative_difficulty =
+            (difficulty - min_difficulty) / ((max_difficulty * 2.0) - min_difficulty);
         let radius = self.get_radius(momentum.mass);
         // have 4 different shapes based on the difficulty level
         // a circle, a triangle, a square and a pentagon
@@ -112,10 +114,51 @@ impl EnemyStrengthRange {
             points,
             closed: true,
         };
-        // GeometryBuilder::build_as(&shapes::Circle {
-        //     radius,
-        //     center: Vec2::ZERO,
-        // })
-        GeometryBuilder::build_as(&triangle)
+        // Five-pointed star
+        let num_points = 5;
+        let angle_step = std::f32::consts::PI * 2.0 / num_points as f32;
+        let mut star_points = Vec::with_capacity(num_points * 2);
+
+        for i in 0..num_points * 2 {
+            let radius_factor = if i % 2 == 0 { 1.0 } else { 0.5 };
+            let angle = angle_step * (i as f32 / 2.0);
+            let x = radius * radius_factor * angle.cos();
+            let y = radius * radius_factor * angle.sin();
+            star_points.push(Vec2::new(x, y));
+        }
+        let star = shapes::Polygon {
+            points: star_points,
+            closed: true,
+        };
+
+        // Crescent moon
+        let moon_points = vec![
+            Vec2::new(0.0, radius),                 // Top point
+            Vec2::new(radius * 0.5, radius * 0.5),  // Top-right point
+            Vec2::new(radius * 0.5, -radius * 0.5), // Bottom-right point
+            Vec2::new(0.0, -radius),                // Bottom point
+        ];
+        let moon = shapes::Polygon {
+            points: moon_points,
+            closed: true,
+        };
+
+        // U shape
+        let u_points = vec![
+            Vec2::new(-radius, radius),  // Top-left point
+            Vec2::new(radius, radius),   // Top-right point
+            Vec2::new(radius, -radius),  // Bottom-right point
+            Vec2::new(-radius, -radius), // Bottom-left point
+        ];
+        let u_shape = shapes::Polygon {
+            points: u_points,
+            closed: false,
+        };
+
+        if relative_difficulty < 0.5 {
+            GeometryBuilder::build_as(&star)
+        } else {
+            GeometryBuilder::build_as(&triangle)
+        }
     }
 }

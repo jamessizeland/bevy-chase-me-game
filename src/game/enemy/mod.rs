@@ -1,7 +1,11 @@
 mod resources;
 mod systems;
 
-use super::{state::InGameState, GameTime, Score};
+use super::{
+    events::{ShipDestroyed, ShipHit},
+    state::InGameState,
+    GameTime, Score,
+};
 use crate::AppState;
 use bevy::prelude::*;
 use rand::Rng;
@@ -40,6 +44,8 @@ pub struct EnemyPlugin;
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<EnemyStrengthRange>()
+            .add_event::<ShipDestroyed>()
+            .add_event::<ShipHit>()
             .add_systems(Startup, spawn_enemy_parent)
             .add_systems(Update, (spawn_enemy).run_if(in_state(InGameState::Play)))
             .add_systems(
@@ -64,6 +70,10 @@ pub struct Enemy {
     pub recharge_rate: f32,
     /// The state of the enemy
     pub state: EnemyState,
+    /// Colour of the enemy
+    pub colour: Color,
+    /// Health of the enemy
+    pub health: u8,
 }
 
 impl Enemy {
@@ -76,6 +86,12 @@ impl Enemy {
             max_energy,
             recharge_rate,
             state: EnemyState::Stopped,
+            colour: Color::RED, // override later
+            health: 4,
         }
+    }
+    /// Set the colour of the enemy
+    pub fn set_colour(&mut self, colour: Color) {
+        self.colour = colour;
     }
 }

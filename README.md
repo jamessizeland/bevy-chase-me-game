@@ -27,3 +27,11 @@ Move with momentum
 Game loop
 
 ![game_loop](./img/game-loop1.gif)
+
+Particle effects on ship destroyed
+
+![particles](./img/particles1.gif)
+
+Randomized messages when you get zero points
+
+![randomized_messages](./img/zero-points.gif)
