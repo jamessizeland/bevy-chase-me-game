@@ -1,5 +1,5 @@
 use super::{resources::EnemyStrengthRange, Enemy, EnemyParent, EnemyState, GameTime, Score};
-use crate::game::{movement::Momentum, player::Player};
+use crate::game::{events::ShipDestroyed, movement::Momentum, player::Player};
 use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_prototype_lyon::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -36,7 +36,7 @@ pub fn spawn_enemy(
     // The enemy should despawn after a certain amount of time, and the player should get points for surviving.
     // The player should lose health if they collide with an enemy.
     let bias = (score.0 / 100.0).clamp(0.5, 2.0); // the bias is the percentage of the max power of the enemy that the new enemy should have
-    let (momentum, enemy) = max_enemy_strength.get_enemy_stats(bias);
+    let (momentum, mut enemy) = max_enemy_strength.get_enemy_stats(bias);
 
     let radius = max_enemy_strength.get_radius(momentum.mass); // radius of the enemy
 
@@ -61,6 +61,7 @@ pub fn spawn_enemy(
 
     // generate a colour and shape based on the difficulty level of the enemy, which is based on the enemy's stats. Red should be the easiest, scaling up to blue the hardest.
     let colour = max_enemy_strength.get_colour(&momentum, &enemy);
+    enemy.colour = colour; // set to use for explosion colour on death
     let path = max_enemy_strength.get_shape(&momentum, &enemy);
 
     info!("Spawning enemy with stats: {:?}", (&momentum, &enemy));
@@ -95,11 +96,12 @@ pub fn spawn_enemy(
 pub fn enemy_lifetime(
     mut commands: Commands,
     time: Res<Time>,
-    mut enemies: Query<(Entity, &mut Enemy, &Momentum)>,
+    mut enemies: Query<(&Transform, Entity, &mut Enemy, &Momentum)>,
     mut score: ResMut<Score>,
+    mut ship_destroyed_events: EventWriter<ShipDestroyed>,
 ) {
     let time_passed = time.delta().as_secs_f32();
-    for (entity, mut enemy, momentum) in enemies.iter_mut() {
+    for (transform, entity, mut enemy, momentum) in enemies.iter_mut() {
         match enemy.state {
             EnemyState::Stopped => {
                 enemy.energy += (enemy.recharge_rate * time_passed).clamp(0.0, enemy.max_energy);
@@ -119,6 +121,11 @@ pub fn enemy_lifetime(
                     score.0 += calc_strength(&momentum, &enemy);
                     commands.entity(entity).remove_parent().despawn();
                     info!("Survied! Adding score");
+                    ship_destroyed_events.send(ShipDestroyed {
+                        x: transform.translation.x,
+                        y: transform.translation.y,
+                        colour: enemy.colour,
+                    });
                 }
             }
         }

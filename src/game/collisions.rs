@@ -5,7 +5,7 @@ use bevy_rapier2d::prelude::*;
 
 use crate::game::events::EndGameTriggered;
 
-use super::{enemy::Enemy, player::Player, state::InGameState};
+use super::{enemy::Enemy, events::ShipHit, player::Player, state::InGameState};
 
 /// Plugin to handle collisions between entities
 pub struct CollisionsPlugin;
@@ -23,6 +23,7 @@ impl Plugin for CollisionsPlugin {
 fn collision_events(
     mut collision_events: EventReader<CollisionEvent>,
     mut player_destroyed: EventWriter<EndGameTriggered>,
+    mut ship_hit_events: EventWriter<ShipHit>,
     players: Query<Entity, With<Player>>,
     enemies: Query<Entity, With<Enemy>>,
 ) {
