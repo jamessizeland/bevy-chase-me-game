@@ -26,3 +26,4 @@ bevy_rapier2d = { version = "0.25.0", features = [
 ] }
 rand = "0.8.5"
 belly = { git = "https://github.com/jkb0o/belly.git", branch = "main" }
+bevy_particle_systems = "0.12.0"
