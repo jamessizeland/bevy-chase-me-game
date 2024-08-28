@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use crate::prelude::*;
 
 /// Event for requesting a restart of the game.
 #[derive(Event, Default)]
@@ -36,8 +36,9 @@ pub struct ShipDestroyed {
 /// and the x and y coordinates of the ship.
 #[derive(Event)]
 pub struct ShipHit {
-    pub damage: f32,
-    pub x: f32,
-    pub y: f32,
-    pub colour: Color,
+    pub id: Entity,
+    // pub damage: f32,
+    // pub x: f32,
+    // pub y: f32,
+    // pub colour: Color,
 }
