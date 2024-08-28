@@ -3,13 +3,7 @@
 mod resources;
 mod systems;
 
-use super::{
-    events::{ShipDestroyed, ShipHit},
-    state::InGameState,
-    GameTime, Score,
-};
-use bevy::prelude::*;
-use rand::Rng;
+use crate::prelude::*;
 use resources::EnemyStrengthRange;
 use systems::{enemy_hit, enemy_lifetime, spawn_enemy};
 

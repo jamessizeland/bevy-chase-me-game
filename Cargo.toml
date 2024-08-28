@@ -24,6 +24,7 @@ bevy_rapier2d = { version = "0.27.0", features = [
     "wasm-bindgen",
 ] }
 bevy_particle_systems = "0.13.0"
+bevy_trauma_shake = { git = "https://github.com/jamessizeland/bevy_trauma_shake.git" }
 
 [features]
 default = [

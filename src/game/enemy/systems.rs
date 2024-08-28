@@ -1,17 +1,10 @@
-use super::{resources::EnemyStrengthRange, Enemy, EnemyParent, EnemyState, GameTime, Score};
+use super::{resources::EnemyStrengthRange, Enemy, EnemyParent, EnemyState};
 use crate::{
     audio::sfx::SfxCommands,
-    game::{
-        events::{ShipDestroyed, ShipHit},
-        movement::Momentum,
-        player::Player,
-    },
-    SfxHandles,
+    game::{movement::Momentum, player::Player},
+    prelude::*,
 };
-use bevy::{prelude::*, utils::hashbrown::Equivalent, window::PrimaryWindow};
-use bevy_prototype_lyon::prelude::*;
-use bevy_rapier2d::prelude::*;
-use rand::Rng;
+use bevy::{utils::hashbrown::Equivalent, window::PrimaryWindow};
 
 /// Spawn a enemy at a random location on the map, after a random interval
 pub fn spawn_enemy(
@@ -146,6 +139,7 @@ pub fn enemy_lifetime(
 
 /// Enemies lose energy when they get hit
 pub fn enemy_hit(
+    mut commands: Commands,
     mut objects: Query<(Entity, &mut Enemy, &Velocity)>,
     mut hit_events: EventReader<ShipHit>,
 ) {
@@ -153,12 +147,14 @@ pub fn enemy_hit(
         for (entity, mut enemy, velocity) in objects.iter_mut() {
             // read events and reduce energy of enemies.
             if events.id.equivalent(&entity) {
-                let velocity_magnitude = velocity.linvel[0].abs() + velocity.linvel[1].abs();
+                let velocity_magnitude =
+                    (velocity.linvel[0].abs() + velocity.linvel[1].abs()) * 0.01;
+                commands.add_trauma(velocity_magnitude);
                 info!(
                     "enemy {} hit something at {} with {}/{} energy",
                     events.id, velocity_magnitude, enemy.energy, enemy.max_energy
                 );
-                enemy.energy -= enemy.max_energy * (0.1 * velocity_magnitude); // drop energy by %, based on velocity, on collision
+                enemy.energy -= enemy.max_energy * (velocity_magnitude); // drop energy by %, based on velocity, on collision
             }
         }
     }

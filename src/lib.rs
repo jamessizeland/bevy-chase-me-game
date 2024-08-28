@@ -11,6 +11,7 @@ use bevy::{
     asset::AssetMetaCheck,
     audio::{AudioPlugin, Volume},
 };
+use bevy_trauma_shake::TraumaPlugin;
 
 mod prelude {
     pub use crate::{
@@ -23,6 +24,7 @@ mod prelude {
     pub use bevy::prelude::*;
     pub use bevy_prototype_lyon::prelude::*;
     pub use bevy_rapier2d::prelude::*;
+    pub use bevy_trauma_shake::prelude::*;
     pub use rand::{distributions::Uniform, Rng as _};
 
     /// High-level groupings of systems for the app in the `Update` schedule.
@@ -98,6 +100,7 @@ impl Plugin for AppPlugin {
             theme::plugin,
             assets::plugin,
             audio::plugin,
+            TraumaPlugin,
         ));
 
         // Enable dev tools for dev builds.
@@ -110,6 +113,7 @@ fn spawn_camera(mut commands: Commands) {
     commands.spawn((
         Name::new("Camera"),
         Camera2dBundle::default(),
+        Shake::default(),
         // Render all UI to this camera.
         // Not strictly necessary since we only use one camera,
         // but if we don't use this component, our UI will disappear as soon

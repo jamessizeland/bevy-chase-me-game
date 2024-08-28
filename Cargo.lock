@@ -1183,6 +1183,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "bevy_trauma_shake"
+version = "0.3.1"
+source = "git+https://github.com/jamessizeland/bevy_trauma_shake.git#28d8cc921a4a06631d43c85507a7eb9bd396dc18"
+dependencies = [
+ "bevy",
+ "noisy_bevy",
+]
+
+[[package]]
 name = "bevy_ui"
 version = "0.14.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1495,6 +1504,7 @@ dependencies = [
  "bevy_particle_systems",
  "bevy_prototype_lyon",
  "bevy_rapier2d",
+ "bevy_trauma_shake",
  "log",
  "rand",
  "tracing",
@@ -3041,6 +3051,15 @@ name = "nohash-hasher"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2bf50223579dc7cdcfb3bfcacf7069ff68243f8c363f62ffa99cf000a6b9c451"
+
+[[package]]
+name = "noisy_bevy"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a498a5310e40540a941aca31ef341a0b229e11b04fb359c9c023ac412e34465b"
+dependencies = [
+ "bevy",
+]
 
 [[package]]
 name = "nom"
