@@ -92,13 +92,26 @@ pub struct SfxHandles(HashMap<String, Vec<Handle<AudioSource>>>);
 impl SfxHandles {
     pub const PATH_BUTTON_HOVER: &'static str = "audio/sfx/button_hover.ogg";
     pub const PATH_BUTTON_PRESS: &'static str = "audio/sfx/button_press.ogg";
+    pub const PATH_CRASH: &'static str = "audio/sfx/crash-course.ogg";
+    pub const PATH_COLLIDE: &'static str = "audio/sfx/hadron-impact.ogg";
+    pub const PATH_DREADNAUGHT: &'static str = "audio/sfx/dreadnaught.ogg";
+    pub const PATH_IMPACT: &'static str = "audio/sfx/impact.ogg";
+    pub const PATH_ARRIVAL: &'static str = "audio/sfx/arrival.ogg";
 }
 
 impl FromWorld for SfxHandles {
     fn from_world(world: &mut World) -> Self {
         let asset_server = world.get_resource::<AssetServer>().unwrap();
 
-        let paths = [Self::PATH_BUTTON_HOVER, Self::PATH_BUTTON_PRESS];
+        let paths = [
+            Self::PATH_BUTTON_HOVER,
+            Self::PATH_BUTTON_PRESS,
+            Self::PATH_CRASH,
+            Self::PATH_COLLIDE,
+            Self::PATH_DREADNAUGHT,
+            Self::PATH_IMPACT,
+            Self::PATH_ARRIVAL,
+        ];
         let map: HashMap<_, _> = paths
             .into_iter()
             .map(|path| (path.to_string(), vec![asset_server.load(path)]))
