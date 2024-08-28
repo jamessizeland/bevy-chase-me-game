@@ -1,8 +1,12 @@
 use super::{resources::EnemyStrengthRange, Enemy, EnemyParent, EnemyState, GameTime, Score};
-use crate::game::{
-    events::{ShipDestroyed, ShipHit},
-    movement::Momentum,
-    player::Player,
+use crate::{
+    audio::sfx::SfxCommands,
+    game::{
+        events::{ShipDestroyed, ShipHit},
+        movement::Momentum,
+        player::Player,
+    },
+    SfxHandles,
 };
 use bevy::{prelude::*, utils::hashbrown::Equivalent, window::PrimaryWindow};
 use bevy_prototype_lyon::prelude::*;
@@ -61,14 +65,13 @@ pub fn spawn_enemy(
             break (random_x, random_y);
         }
     };
-    // info!("random_x: {}, random_y: {}", random_x, random_y);
 
     // generate a colour and shape based on the difficulty level of the enemy, which is based on the enemy's stats. Red should be the easiest, scaling up to blue the hardest.
     let colour = max_enemy_strength.get_colour(&momentum, &enemy);
     enemy.colour = colour; // set to use for explosion colour on death
     let path = max_enemy_strength.get_shape(&momentum, &enemy);
 
-    // info!("Spawning enemy with stats: {:?}", (&momentum, &enemy));
+    commands.play_sfx(SfxHandles::PATH_ARRIVAL);
 
     commands
         .spawn((
@@ -127,6 +130,7 @@ pub fn enemy_lifetime(
                 };
                 if enemy.lifetime.finished() {
                     score.0 += calc_strength(momentum, &enemy);
+                    commands.play_sfx(SfxHandles::PATH_TAP);
                     commands.entity(entity).remove_parent().despawn();
                     info!("Survied! Adding score");
                     ship_destroyed_events.send(ShipDestroyed {
@@ -149,11 +153,12 @@ pub fn enemy_hit(
         for (entity, mut enemy, velocity) in objects.iter_mut() {
             // read events and reduce energy of enemies.
             if events.id.equivalent(&entity) {
+                let velocity_magnitude = velocity.linvel[0].abs() + velocity.linvel[1].abs();
                 info!(
                     "enemy {} hit something at {} with {}/{} energy",
-                    events.id, velocity.linvel, enemy.energy, enemy.max_energy
+                    events.id, velocity_magnitude, enemy.energy, enemy.max_energy
                 );
-                enemy.energy -= enemy.max_energy * 0.2; // drop energy by 20% on collision
+                enemy.energy -= enemy.max_energy * (0.1 * velocity_magnitude); // drop energy by %, based on velocity, on collision
             }
         }
     }
