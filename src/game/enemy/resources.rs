@@ -74,25 +74,25 @@ impl EnemyStrengthRange {
             (difficulty - min_difficulty) / ((max_difficulty * 2.0) - min_difficulty);
         // have 10 difficulty colours
         if relative_difficulty < 0.1 {
-            Color::RED
+            Color::srgb(255.0, 0.0, 0.0)
         } else if relative_difficulty < 0.2 {
-            Color::rgb(1.0, 0.5, 0.0)
+            Color::srgb(255.0, 112.5, 0.0)
         } else if relative_difficulty < 0.3 {
-            Color::rgb(1.0, 1.0, 0.0)
+            Color::srgb(255.0, 255.0, 0.0)
         } else if relative_difficulty < 0.4 {
-            Color::rgb(0.5, 1.0, 0.0)
+            Color::srgb(112.5, 255.0, 0.0)
         } else if relative_difficulty < 0.5 {
-            Color::rgb(0.0, 1.0, 0.0)
+            Color::srgb(0.0, 255.0, 0.0)
         } else if relative_difficulty < 0.6 {
-            Color::rgb(0.0, 1.0, 0.5)
+            Color::srgb(0.0, 255.0, 112.5)
         } else if relative_difficulty < 0.7 {
-            Color::rgb(0.0, 1.0, 1.0)
+            Color::srgb(0.0, 255.0, 255.0)
         } else if relative_difficulty < 0.8 {
-            Color::rgb(0.0, 0.5, 1.0)
+            Color::srgb(0.0, 112.5, 255.0)
         } else if relative_difficulty < 0.9 {
-            Color::rgb(0.0, 0.0, 1.0)
+            Color::srgb(0.0, 0.0, 255.0)
         } else {
-            Color::BLUE
+            Color::srgb(255.0, 255.0, 255.0)
         }
     }
     /// Get the shape of the enemy based on its momentum and energy
@@ -120,7 +120,7 @@ impl EnemyStrengthRange {
         let mut star_points = Vec::with_capacity(num_points * 2);
 
         for i in 0..num_points * 2 {
-            let radius_factor = if i % 2 == 0 { 1.0 } else { 0.5 };
+            let radius_factor = if i % 2 == 0 { 2.0 } else { 1.0 };
             let angle = angle_step * (i as f32 / 2.0);
             let x = radius * radius_factor * angle.cos();
             let y = radius * radius_factor * angle.sin();
