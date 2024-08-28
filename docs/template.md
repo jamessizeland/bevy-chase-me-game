@@ -59,10 +59,10 @@ This template comes with a basic project structure that you may find useful:
 Feel free to move things around however you want, though.
 
 If you are new to Bevy, the patterns used in this template may look a bit weird at first glance.
-See our [Design Document](./docs/design.md) for more information on how we structured the code and why.
+See our [Design Document](./design.md) for more information on how we structured the code and why.
 
 > [!Tip]
-> Be sure to check out the [3rd-party tools](./docs/tooling.md) we recommend!
+> Be sure to check out the [3rd-party tools](./tooling.md) we recommend!
 
 ## Run your game
 
@@ -101,13 +101,13 @@ After you've fiddled with it, rename it to `.cargo/config.toml` to enable it.
 ## Release your game
 
 This template uses [GitHub workflows](https://docs.github.com/en/actions/using-workflows) to run tests and build releases.
-See [Workflows](./docs/workflows.md) for more information.
+See [Workflows](./workflows.md) for more information.
 
 ## Known Issues
 
 There are some known issues in Bevy that require some arcane workarounds.
 To keep this template simple, we have opted not to include those workarounds.
-You can read about them in the [Known Issues](./docs/known-issues.md) document.
+You can read about them in the [Known Issues](./known-issues.md) document.
 
 ## License
 
