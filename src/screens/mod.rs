@@ -39,8 +39,6 @@ pub enum Screen {
     Title,
     /// The credits screen that appears when the player selects the credits option.
     Credits,
-    /// The options screen that appears when the player selects the options option.
-    Options,
     /// The prepare screen that appears when the player starts preparing to play the game.
     Preparation,
     /// The playing screen that appears when the player starts playing the game.
@@ -79,7 +77,7 @@ pub fn enter_prep(
 }
 
 /// Transition to the credits screen.
-pub(self) fn enter_credits(mut next_screen: ResMut<NextState<Screen>>) {
+pub fn enter_credits(mut next_screen: ResMut<NextState<Screen>>) {
     next_screen.set(Screen::Credits);
 }
 

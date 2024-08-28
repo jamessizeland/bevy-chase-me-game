@@ -21,7 +21,7 @@ pub fn spawn_enemy(
     window: Query<&Window, With<PrimaryWindow>>,
 ) {
     // only spawn enemies every 5 seconds
-    if !(game_time.time % 5.0 < time.delta_seconds()) {
+    if game_time.time % 5.0 >= time.delta_seconds() {
         return;
     }
 
@@ -126,7 +126,7 @@ pub fn enemy_lifetime(
                     return;
                 };
                 if enemy.lifetime.finished() {
-                    score.0 += calc_strength(&momentum, &enemy);
+                    score.0 += calc_strength(momentum, &enemy);
                     commands.entity(entity).remove_parent().despawn();
                     info!("Survied! Adding score");
                     ship_destroyed_events.send(ShipDestroyed {

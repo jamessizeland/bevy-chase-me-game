@@ -138,7 +138,7 @@ impl EnemyStrengthRange {
             Vec2::new(radius * 0.5, -radius * 0.5), // Bottom-right point
             Vec2::new(0.0, -radius),                // Bottom point
         ];
-        let moon = shapes::Polygon {
+        let _moon = shapes::Polygon {
             points: moon_points,
             closed: true,
         };
@@ -150,7 +150,7 @@ impl EnemyStrengthRange {
             Vec2::new(radius, -radius),  // Bottom-right point
             Vec2::new(-radius, -radius), // Bottom-left point
         ];
-        let u_shape = shapes::Polygon {
+        let _u_shape = shapes::Polygon {
             points: u_points,
             closed: false,
         };

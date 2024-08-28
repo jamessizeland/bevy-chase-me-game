@@ -88,8 +88,4 @@ impl Enemy {
             health: 4,
         }
     }
-    /// Set the colour of the enemy
-    pub fn set_colour(&mut self, colour: Color) {
-        self.colour = colour;
-    }
 }

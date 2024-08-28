@@ -40,6 +40,6 @@ fn spawn_level(mut commands: Commands) {
 fn get_random_array_element<T>(array: &[T]) -> &T {
     let mut rng = rand::thread_rng();
     let range = rand::distributions::Uniform::new(0, array.len());
-    let index = rng.sample(&range);
+    let index = rng.sample(range);
     &array[index]
 }

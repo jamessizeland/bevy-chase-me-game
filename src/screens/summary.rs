@@ -10,7 +10,7 @@ pub(super) fn plugin(app: &mut App) {
     app.add_systems(OnExit(STATE), stop_bgm);
 }
 
-fn show_summary_screen(mut commands: Commands, asset_server: Res<AssetServer>, score: Res<Score>) {
+fn show_summary_screen(mut commands: Commands, _asset_server: Res<AssetServer>, score: Res<Score>) {
     let restart_game = commands.register_one_shot_system(enter_prep);
     let enter_title = commands.register_one_shot_system(enter_title);
     let score = score.0.floor() as u32;
@@ -69,7 +69,7 @@ fn zero_points_message() -> &'static str {
     ];
     let dist = Uniform::new(0, zero_points_message.len());
     let mut rng = rand::thread_rng();
-    zero_points_message[rng.sample(&dist)]
+    zero_points_message[rng.sample(dist)]
 }
 
 fn stop_bgm(mut commands: Commands) {
