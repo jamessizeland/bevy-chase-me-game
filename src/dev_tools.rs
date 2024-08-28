@@ -1,10 +1,16 @@
 //! Development tools for the game. This plugin is only enabled in dev builds.
 
-use bevy::{dev_tools::states::log_transitions, prelude::*};
+use bevy::{
+    dev_tools::states::log_transitions, input::common_conditions::input_toggle_active, prelude::*,
+};
+use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 use crate::screens::Screen;
 
 pub(super) fn plugin(app: &mut App) {
     // Print state transitions in dev builds
     app.add_systems(Update, log_transitions::<Screen>);
+    app.add_plugins((
+        WorldInspectorPlugin::default().run_if(input_toggle_active(false, KeyCode::KeyI)),
+    ));
 }

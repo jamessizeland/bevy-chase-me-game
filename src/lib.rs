@@ -10,9 +10,7 @@ use crate::prelude::*;
 use bevy::{
     asset::AssetMetaCheck,
     audio::{AudioPlugin, Volume},
-    input::common_conditions::input_toggle_active,
 };
-use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 mod prelude {
     pub use crate::{
@@ -92,10 +90,6 @@ impl Plugin for AppPlugin {
                     ..default()
                 }),
         );
-
-        app.add_plugins((
-            WorldInspectorPlugin::default().run_if(input_toggle_active(false, KeyCode::KeyI)),
-        ));
 
         // Add other plugins.
         app.add_plugins((
