@@ -147,8 +147,7 @@ pub fn enemy_hit(
         for (entity, mut enemy, velocity) in objects.iter_mut() {
             // read events and reduce energy of enemies.
             if events.id.equivalent(&entity) {
-                let velocity_magnitude =
-                    (velocity.linvel[0].abs() + velocity.linvel[1].abs()) * 0.01;
+                let velocity_magnitude = get_magnitude(velocity);
                 commands.add_trauma(velocity_magnitude);
                 info!(
                     "enemy {} hit something at {} with {}/{} energy",

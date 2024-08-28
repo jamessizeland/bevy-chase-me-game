@@ -58,8 +58,7 @@ fn collision_events(
                         player_destroyed.send(EndGameTriggered);
                     }
                 } else if entity1.equivalent(&player) || entity2.equivalent(&player) {
-                    let velocity_magnitude =
-                        (player_vel.linvel[0].abs() + player_vel.linvel[1].abs()) * 0.01;
+                    let velocity_magnitude = get_magnitude(player_vel);
                     info!(
                         "Player collided with something else with velocity {}",
                         velocity_magnitude

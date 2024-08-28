@@ -41,6 +41,11 @@ mod prelude {
         /// Check score and end game conditions.
         UpdateScore,
     }
+    /// Convert velocity in x and y to a single scaled magnitude value.
+    pub fn get_magnitude(velocity: &Velocity) -> f32 {
+        let velocity_magnitude = (velocity.linvel[0].abs() + velocity.linvel[1].abs()) * 0.08;
+        velocity_magnitude
+    }
 }
 
 pub struct AppPlugin;
@@ -114,6 +119,11 @@ fn spawn_camera(mut commands: Commands) {
         Name::new("Camera"),
         Camera2dBundle::default(),
         Shake::default(),
+        ShakeSettings {
+            decay_per_second: 2.0, // up from 0.8
+            amplitude: 8.0,        // down from 100.0
+            ..default()
+        },
         // Render all UI to this camera.
         // Not strictly necessary since we only use one camera,
         // but if we don't use this component, our UI will disappear as soon
