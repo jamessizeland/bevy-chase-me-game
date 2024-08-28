@@ -43,8 +43,7 @@ mod prelude {
     }
     /// Convert velocity in x and y to a single scaled magnitude value.
     pub fn get_magnitude(velocity: &Velocity) -> f32 {
-        let velocity_magnitude = (velocity.linvel[0].abs() + velocity.linvel[1].abs()) * 0.08;
-        velocity_magnitude
+        (velocity.linvel[0].abs() + velocity.linvel[1].abs()) * 0.08
     }
 }
 
