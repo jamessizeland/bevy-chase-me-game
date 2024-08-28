@@ -97,6 +97,8 @@ impl SfxHandles {
     pub const PATH_DREADNAUGHT: &'static str = "audio/sfx/dreadnaught.ogg";
     pub const PATH_IMPACT: &'static str = "audio/sfx/impact.ogg";
     pub const PATH_ARRIVAL: &'static str = "audio/sfx/arrival.ogg";
+    pub const PATH_SELECT: &'static str = "audio/sfx/select.ogg";
+    pub const PATH_TAP: &'static str = "audio/sfx/tap.ogg";
 }
 
 impl FromWorld for SfxHandles {
@@ -111,6 +113,8 @@ impl FromWorld for SfxHandles {
             Self::PATH_DREADNAUGHT,
             Self::PATH_IMPACT,
             Self::PATH_ARRIVAL,
+            Self::PATH_SELECT,
+            Self::PATH_TAP,
         ];
         let map: HashMap<_, _> = paths
             .into_iter()

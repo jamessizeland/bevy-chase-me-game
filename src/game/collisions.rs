@@ -35,7 +35,7 @@ fn collision_events(
 
     for collision_event in collision_events.read() {
         commands.play_sfx_with_settings(
-            SfxHandles::PATH_IMPACT,
+            SfxHandles::PATH_SELECT,
             PlaybackSettings {
                 mode: PlaybackMode::Once,
                 volume: Volume::new(0.5),
