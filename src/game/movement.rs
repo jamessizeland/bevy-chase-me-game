@@ -1,49 +1,46 @@
-use std::f32::consts::PI;
+//! This module contains systems for moving objects in the game world.
+//! Most movement in this game is with momentum and friction.
 
 use super::{
     enemy::{Enemy, EnemyState},
     player::Player,
-    state::InGameState,
 };
-use bevy::{prelude::*, window::PrimaryWindow};
-use bevy_rapier2d::dynamics::Velocity;
+use crate::prelude::*;
+use bevy::window::PrimaryWindow;
+use std::f32::consts::PI;
 
-pub struct MovementPlugin;
-
-impl Plugin for MovementPlugin {
-    fn build(&self, app: &mut App) {
-        app.insert_resource(Friction(0.9)).add_systems(
-            Update,
-            (
-                bounded_movement,
-                player_movement,
-                chase_movement.after(player_movement),
-            )
-                .run_if(in_state(InGameState::Play)),
-        );
-    }
+pub(super) fn plugin(app: &mut App) {
+    app.add_systems(
+        Update,
+        (player_movement, chase_movement, bounded_movement)
+            .chain() // run these systems in sequence
+            .run_if(in_state(InGameState::Playing)),
+    );
 }
 
 #[derive(Component)]
 pub struct BoundedMovement;
 
+/// This system clamps the position of objects with BoundedMovement to the window size
+/// so that they cannot move outside of the window.
 pub fn bounded_movement(
-    mut objects: Query<(&mut Transform, &BoundedMovement)>,
+    mut objects: Query<&mut Transform, With<BoundedMovement>>,
     window: Query<&Window, With<PrimaryWindow>>,
 ) {
     let Ok(window) = window.get_single() else {
         warn!("no primary window, not implementing bounded movement");
         return;
     };
-    let width = window.resolution.width();
-    let height = window.resolution.height();
-    for (mut transform, _) in &mut objects {
-        transform.translation.x = transform.translation.x.clamp(0.0, width);
-        transform.translation.y = transform.translation.y.clamp(0.0, height);
+    let half_width = window.resolution.width() / 2.0;
+    let half_height = window.resolution.height() / 2.0;
+    for mut transform in objects.iter_mut() {
+        transform.translation.x = transform.translation.x.clamp(-half_width, half_width);
+        transform.translation.y = transform.translation.y.clamp(-half_height, half_height);
     }
 }
 
 #[derive(Component, Default, Clone, Copy, Debug, Reflect)]
+#[reflect(Component)]
 pub struct Momentum {
     pub max_speed: f32,
     pub mass: f32,
@@ -61,20 +58,16 @@ impl Momentum {
     }
 }
 
-#[derive(Resource)]
-pub struct Friction(pub f32);
-
 #[derive(Component)]
 pub struct KeyboardMovement;
 
 /// This system changes the velocity vector of objects with Momentum based on player input. Pressing a move direction key increases the velocity in that direction based on the mass and thrust of the object. Releasing the key decreases the velocity in that direction based on the friction and mass of the object.
 pub fn player_movement(
     keyboard_input: Res<ButtonInput<KeyCode>>,
-    mut objects: Query<(&mut Transform, &Player, &Momentum, &mut Velocity)>,
-    friction: Res<Friction>,
+    mut objects: Query<(&mut Transform, &Momentum, &mut Velocity), With<Player>>,
     time: Res<Time>,
 ) {
-    for (mut transform, _, momentum, mut velocity) in &mut objects {
+    for (mut transform, momentum, mut velocity) in objects.iter_mut() {
         let mut acceleration = Vec2::ZERO;
         if keyboard_input.pressed(KeyCode::KeyW) || keyboard_input.pressed(KeyCode::ArrowUp) {
             acceleration.y += momentum.thrust / momentum.mass;
@@ -89,12 +82,11 @@ pub fn player_movement(
             acceleration.x += momentum.thrust / momentum.mass;
         }
         velocity.linvel += acceleration * time.delta_seconds();
-        velocity.linvel *= 1.0 - friction.0 * time.delta_seconds();
         velocity.linvel = velocity.linvel.clamp(
             Vec2::splat(-momentum.max_speed),
             Vec2::splat(momentum.max_speed),
         );
-        transform.translation += Vec3::new(velocity.linvel.x, velocity.linvel.y, 0.0);
+        transform.translation += velocity.linvel.extend(0.0);
         // rotate the object to face the direction of movement assuming that the object is facing up to begin with
         let angle = velocity.linvel.angle_between(Vec2::Y);
         transform.rotation = Quat::from_rotation_z(-angle);
@@ -104,13 +96,21 @@ pub fn player_movement(
 /// This system changes the velocity vector of objects with Chaser based on the position of the target object. The object will move towards the closest target object at a speed determined by the mass and thrust of the object.
 pub fn chase_movement(
     mut commands: Commands,
-    mut objects: Query<(Entity, &Transform, &Enemy, &Momentum, &mut Velocity)>,
+    mut objects: Query<(
+        Entity,
+        &Transform,
+        &Enemy,
+        &Momentum,
+        &mut Velocity,
+        &mut Fill,
+    )>,
     target: Query<&Transform, With<Player>>,
     time: Res<Time>,
 ) {
-    for (entity, transform, enemy, momentum, mut velocity) in objects.iter_mut() {
+    for (entity, transform, enemy, momentum, mut velocity, mut fill) in objects.iter_mut() {
         match enemy.state {
             EnemyState::Moving => {
+                fill.color = enemy.colour;
                 // find the closest target
                 let target_transform = target.iter().fold(None, |closest, target| {
                     let distance = transform.translation.distance(target.translation);
@@ -136,20 +136,20 @@ pub fn chase_movement(
                     Vec2::splat(-momentum.max_speed),
                     Vec2::splat(momentum.max_speed),
                 );
-                let new_translation =
-                    Vec3::new(velocity.linvel.x, velocity.linvel.y, 0.0) + transform.translation;
-                // rotate the object to face the direction of movement assuming that the object is facing up to begin with
-                let angle = velocity.linvel.angle_between(Vec2::Y);
-                let new_rotation = Quat::from_rotation_z(-angle + PI);
-                commands.entity(entity).insert(Transform {
-                    translation: new_translation,
-                    rotation: new_rotation,
-                    ..*transform
-                });
             }
             EnemyState::Stopped => {
-                velocity.linvel = Vec2::ZERO;
+                // gray out the enemy to indicate that it is inactive
+                fill.color = Color::srgb_u8(100, 100, 100);
             }
         }
+        let new_translation = transform.translation + velocity.linvel.extend(0.0);
+        // rotate the object to face the direction of movement assuming that the object is facing up to begin with
+        let angle = velocity.linvel.angle_between(Vec2::Y);
+        let new_rotation = Quat::from_rotation_z(-angle + PI);
+        commands.entity(entity).insert(Transform {
+            translation: new_translation,
+            rotation: new_rotation,
+            ..*transform
+        });
     }
 }

@@ -1,20 +1,19 @@
-use bevy::prelude::*;
+//! Particle system for the game.
+//!
+//! When the enemies are destroyed, a particle system is spawned at their location.
+
+use crate::prelude::*;
 use bevy_particle_systems::{
     ColorOverTime, Curve, CurvePoint, JitteredValue, ParticleBurst, ParticleSystem,
     ParticleSystemBundle, ParticleSystemPlugin, Playing, VelocityModifier::*,
 };
 
-use super::events::ShipDestroyed;
-
-pub struct ParticlesPlugin;
-
-impl Plugin for ParticlesPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_plugins(ParticleSystemPlugin)
-            .add_systems(Update, destroyed_ship);
-    }
+pub(super) fn plugin(app: &mut App) {
+    app.add_plugins(ParticleSystemPlugin)
+        .add_systems(Update, destroyed_ship);
 }
 
+/// Spawn a particle system when a ship is destroyed.
 fn destroyed_ship(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
@@ -34,22 +33,16 @@ fn destroyed_ship(
                     color: ColorOverTime::Gradient(Curve::new(vec![
                         CurvePoint::new(event.colour, 0.0),
                         CurvePoint::new(Color::WHITE, 0.5),
-                        CurvePoint::new(Color::rgba(0.0, 0.0, 1.0, 0.0), 1.0),
+                        CurvePoint::new(Color::srgba(0.0, 0.0, 255.0, 0.1), 1.0),
                     ])),
                     looping: false,
                     system_duration_seconds: 0.1,
                     max_distance: Some(50.0),
                     scale: 2.0.into(),
-                    bursts: vec![
-                        ParticleBurst::new(0.0, 100),
-                        // ParticleBurst::new(2.0, 100),
-                        // ParticleBurst::new(4.0, 100),
-                        // ParticleBurst::new(6.0, 100),
-                        // ParticleBurst::new(8.0, 100),
-                    ],
-                    ..ParticleSystem::default()
+                    bursts: vec![ParticleBurst::new(0.0, 100)],
+                    ..default()
                 },
-                ..ParticleSystemBundle::default()
+                ..default()
             })
             .insert(Playing);
     }

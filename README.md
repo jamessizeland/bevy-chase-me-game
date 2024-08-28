@@ -1,4 +1,4 @@
-# bevy game exploration
+# Chase Me Game
 
 Requirements:
 
@@ -8,30 +8,19 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
 ```sh
-# install wasm-server-runner
-cargo install wasm-server-runner
+cargo run
 ```
 
-```sh
-cargo run --target wasm32-unknown-unknown
-```
+## Overview
 
-First compile of Bevy projects is slow, but after that its fast.
+- Player uses WASD or Arrow keys to move their ship.
+- Player ship has momentum so turning circle is better at low speeds.
+- Dodge enemy UFOs and stay alive as long as possible.
+- They will chase you but they also have momentum and will overshoot you if you turn tightly!
+- Enemies spawn every 5 seconds with random stats and live for a random length of time.
+- When a UFO explodes you get points!
+- UFOs lose energy over time and more when they collide with each other or walls. When they run out of energy they will have to stop and recharge.
 
-## Progress
+### Game loop
 
-Move with momentum
-
-![move_with_momentum](./img/move-with-momentum.gif)
-
-Game loop
-
-![game_loop](./img/game-loop1.gif)
-
-Particle effects on ship destroyed
-
-![particles](./img/particles1.gif)
-
-Randomized messages when you get zero points
-
-![randomized_messages](./img/zero-points.gif)
+![game_loop](./img/gameloop-long.gif)

@@ -1,5 +1,5 @@
+# Rust builds
 target/
-.idea/
-.DS_Store
+# Trunk builds
+/web/dist/
 
-dist/

@@ -1,3 +1,5 @@
+//! Module for the enemy entities and systems
+
 mod resources;
 mod systems;
 
@@ -6,11 +8,10 @@ use super::{
     state::InGameState,
     GameTime, Score,
 };
-use crate::AppState;
 use bevy::prelude::*;
 use rand::Rng;
 use resources::EnemyStrengthRange;
-use systems::{enemy_lifetime, spawn_enemy};
+use systems::{enemy_hit, enemy_lifetime, spawn_enemy};
 
 /// A enemy parent, which spawns enemies
 #[derive(Component)]
@@ -25,7 +26,8 @@ fn spawn_enemy_parent(mut commands: Commands) {
     ));
 }
 
-fn despawn_all_enemies(mut commands: Commands, query: Query<Entity, With<Enemy>>) {
+/// Despawn all enemies when the game ends
+fn despawn_all_enemies(query: Query<Entity, With<Enemy>>, mut commands: Commands) {
     for entity in query.iter() {
         commands.entity(entity).despawn();
     }
@@ -38,23 +40,19 @@ pub enum EnemyState {
     Moving,
 }
 
-/// Plugin to manage enemies
-pub struct EnemyPlugin;
-
-impl Plugin for EnemyPlugin {
-    fn build(&self, app: &mut App) {
-        app.init_resource::<EnemyStrengthRange>()
-            .add_event::<ShipDestroyed>()
-            .add_event::<ShipHit>()
-            .add_systems(Startup, spawn_enemy_parent)
-            .add_systems(Update, (spawn_enemy).run_if(in_state(InGameState::Play)))
-            .add_systems(
-                PostUpdate,
-                (enemy_lifetime).run_if(in_state(InGameState::Play)),
-            )
-            .add_systems(OnExit(AppState::InGame), despawn_all_enemies)
-            .register_type::<Enemy>(); // used for debug inspection
-    }
+pub(super) fn plugin(app: &mut App) {
+    app.init_resource::<EnemyStrengthRange>()
+        .add_event::<ShipDestroyed>()
+        .add_event::<ShipHit>()
+        .add_systems(Startup, spawn_enemy_parent)
+        .add_systems(
+            Update,
+            (spawn_enemy, enemy_hit, enemy_lifetime)
+                .chain()
+                .run_if(in_state(InGameState::Playing)),
+        )
+        .add_systems(OnEnter(InGameState::Preparation), despawn_all_enemies)
+        .register_type::<Enemy>(); // used for debug inspection
 }
 
 #[derive(Component, Default, Reflect, Debug)]
@@ -86,12 +84,8 @@ impl Enemy {
             max_energy,
             recharge_rate,
             state: EnemyState::Stopped,
-            colour: Color::RED, // override later
+            colour: Color::srgb(255.0, 0.0, 0.0), // override later
             health: 4,
         }
-    }
-    /// Set the colour of the enemy
-    pub fn set_colour(&mut self, colour: Color) {
-        self.colour = colour;
     }
 }
