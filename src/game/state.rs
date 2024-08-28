@@ -1,4 +1,4 @@
-use crate::prelude::*;
+use crate::{audio::sfx::SfxCommands, prelude::*};
 
 #[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, States)]
 pub enum InGameState {
@@ -37,6 +37,7 @@ fn clean_up(mut commands: Commands, mut next_state: ResMut<NextState<InGameState
 }
 
 pub fn check_summary_condition(
+    mut commands: Commands,
     mut end_game_events: EventReader<EndGameTriggered>,
     mut next_state: ResMut<NextState<InGameState>>,
     mut next_screen: ResMut<NextState<Screen>>,
@@ -44,7 +45,7 @@ pub fn check_summary_condition(
     if end_game_events.is_empty() {
         return;
     }
-
+    commands.play_sfx(SfxHandles::PATH_CRASH);
     end_game_events.clear();
     next_state.set(InGameState::Summary);
     next_screen.set(Screen::Summary);
