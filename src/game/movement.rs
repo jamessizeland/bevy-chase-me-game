@@ -96,13 +96,21 @@ pub fn player_movement(
 /// This system changes the velocity vector of objects with Chaser based on the position of the target object. The object will move towards the closest target object at a speed determined by the mass and thrust of the object.
 pub fn chase_movement(
     mut commands: Commands,
-    mut objects: Query<(Entity, &Transform, &Enemy, &Momentum, &mut Velocity)>,
+    mut objects: Query<(
+        Entity,
+        &Transform,
+        &Enemy,
+        &Momentum,
+        &mut Velocity,
+        &mut Fill,
+    )>,
     target: Query<&Transform, With<Player>>,
     time: Res<Time>,
 ) {
-    for (entity, transform, enemy, momentum, mut velocity) in objects.iter_mut() {
+    for (entity, transform, enemy, momentum, mut velocity, mut fill) in objects.iter_mut() {
         match enemy.state {
             EnemyState::Moving => {
+                fill.color = enemy.colour;
                 // find the closest target
                 let target_transform = target.iter().fold(None, |closest, target| {
                     let distance = transform.translation.distance(target.translation);
@@ -130,7 +138,8 @@ pub fn chase_movement(
                 );
             }
             EnemyState::Stopped => {
-                // do nothing
+                // gray out the enemy to indicate that it is inactive
+                fill.color = Color::srgb_u8(100, 100, 100);
             }
         }
         let new_translation = transform.translation + velocity.linvel.extend(0.0);
