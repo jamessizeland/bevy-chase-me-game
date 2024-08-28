@@ -2,6 +2,6 @@
     "recommendations": [
         "tamasfe.even-better-toml",
         "rust-lang.rust-analyzer",
-        "serayuzgur.crates"
+        "fill-labs.dependi",
     ]
 }
