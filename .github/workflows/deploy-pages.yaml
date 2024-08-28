@@ -42,7 +42,7 @@ jobs:
         run: |
           wasm-bindgen --out-dir ./out/ --target web ./target/wasm32-unknown-unknown/release/${{ env.binary }}.wasm
       - name: Copy
-        run: cp -R assets out/ && cp web/ out/ && ls -R out
+        run: cp -R assets out/ && cp -R web out/ && ls -R out
       - name: Push
         uses: s0/git-publish-subdir-action@develop
         env:
