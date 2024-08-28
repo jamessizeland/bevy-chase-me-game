@@ -24,3 +24,7 @@ cargo run
 ### Game loop
 
 ![game_loop](./img/gameloop-long.gif)
+
+### Contributions
+
+Background audio assets created for non-commercial use with <https://suno.com>. Sound effects from <https://pixabay.com>

@@ -20,6 +20,9 @@ fn show_credits_screen(mut commands: Commands) {
             children.header("Made by");
             children.label("James Sizeland");
             children.label("based on the BevyFlock template");
+            children.label("by bevyengine.org");
+            children.label("Background music created for non-commercial use with https://suno.com");
+            children.label("Sound effects taken from https://pixabay.com");
 
             children.button("Back", enter_title, Some(KeyCode::Escape));
         });
