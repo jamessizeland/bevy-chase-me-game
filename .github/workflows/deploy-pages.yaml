@@ -35,14 +35,17 @@ jobs:
       - name: Install alsa and udev
         run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev
       - name: Install wasm target
-        run: rustup target install wasm32-unknown-unknown && cargo install -f wasm-bindgen-cli --version 0.2.92
+        # run: rustup target install wasm32-unknown-unknown && cargo install -f wasm-bindgen-cli --version 0.2.92
+        run: rustup target install wasm32-unknown-unknown && cargo install trunk --locked
       - name: Build
-        run: cargo build --release --target wasm32-unknown-unknown --no-default-features
-      - name: Prepare package
-        run: |
-          wasm-bindgen --out-dir ./out/ --target web ./target/wasm32-unknown-unknown/release/${{ env.binary }}.wasm
+        # run: cargo build --release --target wasm32-unknown-unknown --no-default-features
+        run: trunk build --release --no-default-features
+      # - name: Prepare package
+      #   run: |
+      #     wasm-bindgen --out-dir ./out/ --target web ./target/wasm32-unknown-unknown/release/${{ env.binary }}.wasm
       - name: Copy
-        run: cp -R assets out/ && cp -R web out/ && ls -R out
+        # run: cp -R assets out/ && cp -R web/. out/ && ls -R out
+        run: cp -R ./target/trunk/. ./out/ && ls -R out
       - name: Push
         uses: s0/git-publish-subdir-action@develop
         env:
