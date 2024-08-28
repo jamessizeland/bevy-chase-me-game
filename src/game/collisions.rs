@@ -26,10 +26,10 @@ fn collision_events(
     mut collision_events: EventReader<CollisionEvent>,
     mut player_destroyed: EventWriter<EndGameTriggered>,
     mut ship_hit_events: EventWriter<ShipHit>,
-    players: Query<Entity, With<Player>>,
+    players: Query<(Entity, &Velocity), With<Player>>,
     enemies: Query<(Entity, &Enemy)>,
 ) {
-    let player = players
+    let (player, player_vel) = players
         .get_single()
         .expect("Collision system found more than one player, this should not happen");
 
@@ -57,7 +57,15 @@ fn collision_events(
                         info!("Player collided with enemy");
                         player_destroyed.send(EndGameTriggered);
                     }
-                };
+                } else if entity1.equivalent(&player) || entity2.equivalent(&player) {
+                    let velocity_magnitude =
+                        (player_vel.linvel[0].abs() + player_vel.linvel[1].abs()) * 0.01;
+                    info!(
+                        "Player collided with something else with velocity {}",
+                        velocity_magnitude
+                    );
+                    commands.add_trauma(velocity_magnitude);
+                }
             }
         }
     }
