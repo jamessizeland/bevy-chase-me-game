@@ -34,10 +34,34 @@ fn setup_walls(
     despawn_walls(&mut commands, &mut walls);
 
     *walls = WallEntities {
-        south: Some(spawn_wall(&mut commands, width, 1.0, 0.0, -height / 2.0)),
-        north: Some(spawn_wall(&mut commands, width, 1.0, 0.0, height / 2.0)),
-        west: Some(spawn_wall(&mut commands, 1.0, height, -width / 2.0, 0.0)),
-        east: Some(spawn_wall(&mut commands, 1.0, height, width / 2.0, 0.0)),
+        south: Some(spawn_wall(
+            &mut commands,
+            width + 9.,
+            10.0,
+            0.0,
+            -height / 2.0,
+        )),
+        north: Some(spawn_wall(
+            &mut commands,
+            width + 9.,
+            10.0,
+            0.0,
+            height / 2.0,
+        )),
+        west: Some(spawn_wall(
+            &mut commands,
+            10.0,
+            height + 9.,
+            -width / 2.0,
+            0.0,
+        )),
+        east: Some(spawn_wall(
+            &mut commands,
+            10.0,
+            height + 9.,
+            width / 2.0,
+            0.0,
+        )),
     };
 }
 

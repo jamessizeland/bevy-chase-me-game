@@ -119,7 +119,7 @@ fn spawn_camera(mut commands: Commands) {
         Camera2dBundle::default(),
         Shake::default(),
         ShakeSettings {
-            decay_per_second: 2.0, // up from 0.8
+            decay_per_second: 5.0, // up from 0.8
             amplitude: 8.0,        // down from 100.0
             ..default()
         },
