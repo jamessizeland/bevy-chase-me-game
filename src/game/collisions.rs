@@ -37,7 +37,7 @@ fn collision_events(
         commands.play_sfx_with_settings(
             SfxHandles::PATH_SELECT,
             PlaybackSettings {
-                mode: PlaybackMode::Once,
+                mode: PlaybackMode::Despawn,
                 volume: Volume::new(0.5),
                 speed: randomise_speed(),
                 ..default()
